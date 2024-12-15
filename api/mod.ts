@@ -22,10 +22,7 @@ export function createFile(content: string | object, path: string | undefined = 
         outputPath = join(Deno.cwd(), "../.regolith/tmp/", outputPath);
     }
 
-    console.log(outputPath);
-
     const outputDir = dirname(outputPath);
     Deno.mkdirSync(outputDir, { recursive: true });
     Deno.writeTextFileSync(outputPath, output, { create: true });
-    console.log(outputPath);
 }
