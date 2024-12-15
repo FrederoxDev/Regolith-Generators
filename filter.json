@@ -1,0 +1,9 @@
+{
+    "description": "Deno script runner",
+    "filters": [
+        {
+			"runWith": "deno",
+			"script": "./src/Index.ts"
+        }
+    ]
+}
