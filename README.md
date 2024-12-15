@@ -2,6 +2,11 @@
 
 Intended to be the regolith alternative to the [bridge. generator scripts](https://bridge-core.app/guide/advanced/generator-scripts/index.html)
 
+### Install Filter
+```
+regolith install github.com/FrederoxDev/Regolith-Generators/regolith_generators
+```
+
 ## Use-cases
 
 Place `.ts` files directly into your BP/RP and this filter will run each one with Deno. More convenient than making filters for one off scripts.
