@@ -10,7 +10,7 @@ Place `.ts` files directly into your BP/RP and this filter will run each one wit
 
 ```ts
 // BP/blocks/ExampleBlockGenerator.ts
-import { createFile } from "file:///C:/Users/blake/Documents/Regolith-Generators/api/mod.ts"
+import { createFile } from "jsr:@frederoxdev/regolith-generators"
 
 const blockNames = ["foo", "bar"];
 
@@ -34,7 +34,7 @@ blockNames.forEach(id => {
 
 ```ts
 // RP/textures/item_texture.ts
-import { createFile } from "file:///C:/Users/blake/Documents/Regolith-Generators/api/mod.ts"
+import { createFile } from "jsr:@frederoxdev/regolith-generators"
 import { join, extname, basename } from "jsr:@std/path";
 import { walkSync } from "jsr:@std/fs";
 
