@@ -4,7 +4,7 @@ Intended to be the regolith alternative to the [bridge. generator scripts](https
 
 ### Install Filter
 ```
-regolith install github.com/FrederoxDev/Regolith-Generators/regolith_generators
+regolith install regolith_generators
 ```
 
 ## Use-cases
