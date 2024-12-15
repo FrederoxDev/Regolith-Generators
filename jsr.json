@@ -1,6 +1,6 @@
 {
-    "name": "@frederoxdev/regolith-generator",
+    "name": "@frederoxdev/regolith-generators",
     "version": "0.1.0",
     "license": "MIT",
     "exports": "./api/mod.ts"
-}
+  }
