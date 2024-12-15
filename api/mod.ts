@@ -1,5 +1,10 @@
 import { basename, dirname, extname, join } from "jsr:@std/path@^1.0.8";
 
+/**
+ * Simple wrapper to writing files in the regolith temp directory
+ * @param content What the file contains
+ * @param path Where to save the file, if left blank it will use the same name as location as the script running it.
+ */
 export function createFile(content: string | object, path: string | undefined = undefined) {
     let output: string | undefined = undefined;
     
