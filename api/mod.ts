@@ -1,4 +1,9 @@
 import { basename, dirname, extname, join } from "jsr:@std/path@^1.0.8";
+export * from "./generators/Block.ts";
+export * from "./generators/ServerEntity.ts";
+export * from "./generators/ClientEntity.ts";
+export * from "./generators/Item.ts";
+export * from "./common/OreSet.ts";
 
 /**
  * Simple wrapper to writing files in the regolith temp directory

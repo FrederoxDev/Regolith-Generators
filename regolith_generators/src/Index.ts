@@ -5,8 +5,12 @@ const ROOT_DIR = Deno.env.get("ROOT_DIR")!;
 
 const DIRECTORIES = [
     join(Deno.cwd(), "BP"),
-    join(Deno.cwd(), "RP")
+    join(Deno.cwd(), "RP"),
+    join(Deno.cwd(), "data", "generated"),
+
 ]
+
+const denoConfigPath = join(ROOT_DIR, "deno.json");
 
 const tsFiles: string[] = [];
 
@@ -18,7 +22,7 @@ for (const dir of DIRECTORIES) {
 
 async function runScript(filePath: string) {
     const process = new Deno.Command("deno", {
-        args: ["run", "--unstable-sloppy-imports", "--allow-all", filePath],
+        args: ["run", "--config", denoConfigPath, "--unstable-sloppy-imports", "--allow-all", filePath],
         stdout: "inherit",
         stdin: "inherit",
         cwd: join(ROOT_DIR, "packs")
