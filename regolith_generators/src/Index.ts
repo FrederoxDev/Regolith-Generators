@@ -10,7 +10,7 @@ const DIRECTORIES = [
 
 ]
 
-const denoConfigPath = join(ROOT_DIR, "deno.json");
+const denoConfigPath = join(ROOT_DIR, "packs", "data", "generated", "deno.json");
 
 const tsFiles: string[] = [];
 

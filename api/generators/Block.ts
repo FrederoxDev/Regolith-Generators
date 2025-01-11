@@ -19,7 +19,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         super();
 
         this.data = {
-            "format_version": "1.20.81",
+            "format_version": "1.21.30",
             "minecraft:block": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`,
@@ -64,10 +64,18 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         return this;
     }
 
-    addFacingDirection() {
+    addCardinalDirectionTrait() {
         const enabledStatesPath = "minecraft:block/description/traits/minecraft:placement_direction/enabled_states";
         const enabledStates = this.getValueAtPath<string[]>(enabledStatesPath, []);
         enabledStates.push("minecraft:cardinal_direction");
+        this.setValueAtPath(enabledStatesPath, enabledStates);
+        return this;
+    }
+
+    addFacingDirectionTrait() {
+        const enabledStatesPath = "minecraft:block/description/traits/minecraft:placement_direction/enabled_states";
+        const enabledStates = this.getValueAtPath<string[]>(enabledStatesPath, []);
+        enabledStates.push("minecraft:facing_direction");
         this.setValueAtPath(enabledStatesPath, enabledStates);
         return this;
     }
@@ -155,5 +163,52 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         components.push(id);
         this.setValueAtPath("minecraft:custom_components", components);
         return this;
+    }
+
+    /**
+     * Describes the destructible by mining properties for this block. 
+     * If set to true, the block will take the default number of seconds to destroy. 
+     * If set to false, this block is indestructible by mining.
+     * If set to a number, this block will take that many seconds to destroy.
+     * @param value 
+     * @returns 
+     */
+    addDestructibleByMining(value: number | boolean) {
+        if (typeof value === "boolean") {
+            return this.addComponent("minecraft:destructible_by_mining", value);
+        }
+
+        return this.addComponent("minecraft:destructible_by_mining", {
+            "seconds_to_destroy": value
+        })
+    }
+
+    /**
+     * Describes the destructible by explosion properties for this block. 
+     * If set to true, the block will have the default explosion resistance. 
+     * If set to false, this block is indestructible by explosion. 
+     * If the component is omitted, the block will have the default explosion resistance.
+     * @param value Describes how resistant the block is to explosion. Greater values mean the block is less likely to break when near an explosion (or has higher resistance to explosions). The scale will be different for different explosion power levels. A negative value or 0 means it will easily explode; larger numbers increase level of resistance.
+     */
+    addDestructibleByExplosion(value: number | boolean) {
+        if (typeof value === "boolean") {
+            return this.addComponent("minecraft:destructible_by_explosion", value);
+        }
+
+        return this.addComponent("minecraft:destructible_by_explosion", {
+            "explosion_resistance": value
+        });
+    }
+
+    /**
+     * 
+     * @param isRedstoneConductor Specifies if the block can be powered by redstone.
+     * @param allowsWireToStepDown Specifies if redstone wire can stair-step downward on the block.
+     */
+    addRedstoneConnectivity(isRedstoneConductor: boolean, allowsWireToStepDown: boolean = true) {
+        return this.addComponent("minecraft:redstone_conductivity", {
+            "redstone_conductor": isRedstoneConductor,
+            "allows_wire_to_step_down": allowsWireToStepDown
+        });
     }
 }

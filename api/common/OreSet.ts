@@ -10,11 +10,20 @@ import { BlockGenerator, ItemComponents, ItemGenerator } from "../mod.ts";
  *  - materialName_ingot
  *  - raw_materialName
  */
-export function MakeOreSet(blocks: BlockGenerator, items: ItemGenerator, projectNamespace: string, materialName: string) {
+export function MakeOreSet(blocks: BlockGenerator, items: ItemGenerator, projectNamespace: string, materialName: string, includeOre: boolean = true) {
     blocks.makeBlock(`${materialName}_block`);
-    blocks.makeBlock(`raw_${materialName}_block`);
-    blocks.makeBlock(`${materialName}_ore`);
-    blocks.makeBlock(`deepslate_${materialName}_ore`);
+
+    if (includeOre) {
+        blocks.makeBlock(`raw_${materialName}_block`);
+        blocks.makeBlock(`${materialName}_ore`);
+        blocks.makeBlock(`deepslate_${materialName}_ore`);
+
+        items.makeItem(`raw_${materialName}`)
+            .addComponents(
+                new ItemComponents()
+                    .addIcon(`${projectNamespace}:raw_${materialName}`)
+            )
+    }
 
     items.makeItem(`${materialName}_ingot`)
         .addComponents(
@@ -22,9 +31,9 @@ export function MakeOreSet(blocks: BlockGenerator, items: ItemGenerator, project
                 .addIcon(`${projectNamespace}:${materialName}_ingot`)
         )
 
-    items.makeItem(`raw_${materialName}`)
+    items.makeItem(`${materialName}_nugget`)
         .addComponents(
             new ItemComponents()
-                .addIcon(`${projectNamespace}:raw_${materialName}`)
+                .addIcon(`${projectNamespace}:${materialName}_nugget`)
         )
 }
