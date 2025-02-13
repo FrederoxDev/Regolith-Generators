@@ -12,6 +12,8 @@ export class BlockGenerator extends GeneratorFactory<BlockDef> {
     }
 }
 
+export type ItemGroupID = `itemGroup.name.${string}`;
+
 export class BlockDef extends GeneratorBase<BlockDef> {
     data: Record<string, unknown>;
 
@@ -98,6 +100,16 @@ export class BlockDef extends GeneratorBase<BlockDef> {
     addComponents(components: BlockComponents) {
         const newComponents = components.toJson();
         this.deepMerge("minecraft:block/components", newComponents);
+        return this;
+    }
+
+    addCategory(category: string, itemGroup: ItemGroupID | undefined = undefined) {
+        this.setValueAtPath("minecraft:block/description/menu_category/category", category);
+
+        if (itemGroup !== undefined) {
+            this.setValueAtPath("minecraft:block/description/menu_category/group", itemGroup);
+        }
+        
         return this;
     }
 }

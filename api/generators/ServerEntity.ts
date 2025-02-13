@@ -109,7 +109,7 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         });
     }
 
-    addCollisionBox(height: number, width: number) {
+    addCollisionBox(width: number, height: number) {
         return this.addComponent("minecraft:collision_box", {
             "height": height,
             "width": width

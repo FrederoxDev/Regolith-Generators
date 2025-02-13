@@ -36,6 +36,14 @@ export class ItemDef extends GeneratorBase<ItemDef> {
     }
 }
 
+export enum ItemSlot {
+    Offhand = "slot.weapon.offhand",
+    Head = "slot.armor.head",
+    Chest = "slot.armor.chest",
+    Legs = "slot.armor.legs",
+    Feet = "slot.armor.feet"
+}
+
 export class ItemComponents extends GeneratorBase<ItemComponents> {
     data: Record<string, unknown>;
 
@@ -54,5 +62,25 @@ export class ItemComponents extends GeneratorBase<ItemComponents> {
      */
     addIcon(iconIdentifier: string) {
         return this.addComponent("minecraft:icon", iconIdentifier);
+    }
+
+    setMaxStackSize(maxStackSize: number) {
+        return this.addComponent("minecraft:max_stack_size", {
+            "value": maxStackSize
+        });
+    }
+
+    setWearable(protection: number, slot: ItemSlot) {
+        return this.addComponent("minecraft:wearable", {
+            "protection": protection,
+            "slot": slot
+        });
+    }
+
+    addTag(tag: string) {
+        const existingTags = this.getValueAtPath<string[]>("minecraft:tags/tags", []);
+        existingTags.push(tag);
+        this.setValueAtPath("minecraft:tags/tags", existingTags);
+        return this;
     }
 }
