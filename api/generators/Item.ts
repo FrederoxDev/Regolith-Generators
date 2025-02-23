@@ -10,6 +10,15 @@ export class ItemGenerator extends GeneratorFactory<ItemDef> {
         this.filesToGenerate.set(id, def);
         return def;
     }
+
+    getItem(id: string): ItemDef {
+        const item = this.filesToGenerate.get(id);
+        if (!item) {
+            throw new Error(`Item with id ${id} not found`);
+        }
+
+        return item;
+    }
 }
 
 export class ItemDef extends GeneratorBase<ItemDef> {
@@ -54,6 +63,13 @@ export class ItemComponents extends GeneratorBase<ItemComponents> {
 
     addComponent(id: string, data: Record<string, unknown> | string | number | boolean) {
         this.setValueAtPath(id, data);
+        return this;
+    }
+
+    addCustomComponent(id: string) {
+        const existingComponents = this.getValueAtPath<string[]>("minecraft:custom_components", []);
+        existingComponents.push(id);
+        this.setValueAtPath("minecraft:custom_components", existingComponents);
         return this;
     }
 
