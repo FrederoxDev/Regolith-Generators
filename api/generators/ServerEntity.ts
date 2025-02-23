@@ -12,7 +12,7 @@ export class ServerEntityGenerator extends GeneratorFactory<ServerEntityDef> {
     }
 }
 
-export type EntityProperty = { client_sync?: boolean} & (
+export type EntityProperty = { client_sync?: boolean } & (
     { type: "bool", default: boolean } |
     { type: "float", default: string, range: [number, number] } |
     { type: "int", default: number, range: [number, number] } |
@@ -114,5 +114,12 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
             "height": height,
             "width": width
         });
+    }
+
+    addTypeFamily(family: string) {
+        const existingFamilies = this.getValueAtPath<string[]>("minecraft:type_family/family", []);
+        existingFamilies.push(family);
+        this.setValueAtPath("minecraft:type_family/family", existingFamilies);
+        return this;
     }
 }
