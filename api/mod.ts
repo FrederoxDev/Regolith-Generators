@@ -2,6 +2,7 @@ import { basename, dirname, extname, join } from "jsr:@std/path@^1.0.8";
 export * from "./generators/Block.ts";
 export * from "./generators/ServerEntity.ts";
 export * from "./generators/ClientEntity.ts";
+export * from "./generators/SoundDefinitions.ts";
 export * from "./generators/Item.ts";
 export * from "./common/OreSet.ts";
 
@@ -21,15 +22,17 @@ export function createFile(content: string | object, path: string | undefined = 
     }
 
     let outputPath = path;
+    const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
 
     if (outputPath === undefined) {
         const entryPoint = Deno.mainModule.replace("file:///", "");
         const baseName = basename(entryPoint, extname(entryPoint));
         const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
-        outputPath = join(Deno.cwd(), "../.regolith/tmp/", relativePath, baseName + ".json");
+
+        outputPath = join(regolithTmp, relativePath, baseName + ".json");
     }
     else {
-        outputPath = join(Deno.cwd(), "../.regolith/tmp/", outputPath);
+        outputPath = join(regolithTmp, outputPath);
     }
 
     const outputDir = dirname(outputPath);
