@@ -36,7 +36,7 @@ export class ServerEntityDef extends GeneratorBase<ServerEntityDef> {
         }
     }
 
-    addComponents(components: EntityComponents) {
+    addComponents(components: EntityComponents): this {
         const existingComponents = this.getValueAtPath<Record<string, unknown>>("minecraft:entity/components", {});
         const newComponents = components.toJson();
 
@@ -51,7 +51,7 @@ export class ServerEntityDef extends GeneratorBase<ServerEntityDef> {
     /**
      * Sets whether or not this entity has a spawn egg in the creative ui.
      */
-    setSpawnability(spawnable: boolean) {
+    setSpawnability(spawnable: boolean): this {
         this.setValueAtPath("minecraft:entity/description/is_spawnable", spawnable);
         return this;
     }
@@ -59,22 +59,22 @@ export class ServerEntityDef extends GeneratorBase<ServerEntityDef> {
     /**
      * Sets whether or not we can summon this entity using commands such as /summon.
      */
-    setSummonable(summonable: boolean) {
+    setSummonable(summonable: boolean): this {
         this.setValueAtPath("minecraft:entity/description/is_summonable", summonable);
         return this;
     }
 
-    addEvent(eventID: string, data: unknown) {
+    addEvent(eventID: string, data: unknown): this {
         this.setValueAtPath(`minecraft:entity/events/${eventID}`, data);
         return this;
     }
 
-    addComponentGroup(groupID: string, components: EntityComponents) {
+    addComponentGroup(groupID: string, components: EntityComponents): this {
         this.setValueAtPath(`minecraft:entity/component_groups/${groupID}`, components.toJson());
         return this;
     }
 
-    addProperty(propertyID: string, data: EntityProperty) {
+    addProperty(propertyID: string, data: EntityProperty): this {
         this.setValueAtPath(`minecraft:entity/description/properties/${propertyID}`, data);
         return this;
     }
@@ -88,12 +88,12 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         this.data = {};
     }
 
-    addComponent(id: string, data: Record<string, unknown> | string | number | boolean | Array<unknown>) {
+    addComponent(id: string, data: Record<string, unknown> | string | number | boolean | Array<unknown>): this  {
         this.setValueAtPath(id, data);
         return this;
     }
 
-    addInventory(numSlots: number, isPrivate: boolean = false) {
+    addInventory(numSlots: number, isPrivate: boolean = false): this  {
         return this.addComponent("minecraft:inventory", {
             "inventory_size": numSlots,
             "private": isPrivate,
@@ -101,7 +101,7 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         });
     }
 
-    addPhysics(hasCollision: boolean, hasGravity: boolean, pushTowardsClosestSpace: boolean = false) {
+    addPhysics(hasCollision: boolean, hasGravity: boolean, pushTowardsClosestSpace: boolean = false): this  {
         return this.addComponent("minecraft:physics", {
             "has_collision": hasCollision,
             "has_gravity": hasGravity,
@@ -109,14 +109,14 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         });
     }
 
-    addCollisionBox(width: number, height: number) {
+    addCollisionBox(width: number, height: number): this  {
         return this.addComponent("minecraft:collision_box", {
             "height": height,
             "width": width
         });
     }
 
-    addTypeFamily(family: string) {
+    addTypeFamily(family: string): this {
         const existingFamilies = this.getValueAtPath<string[]>("minecraft:type_family/family", []);
         existingFamilies.push(family);
         this.setValueAtPath("minecraft:type_family/family", existingFamilies);

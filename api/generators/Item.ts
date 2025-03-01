@@ -38,7 +38,7 @@ export class ItemDef extends GeneratorBase<ItemDef> {
         }
     }
 
-    addComponents(components: ItemComponents) {
+    addComponents(components: ItemComponents): this{
         const newComponents = components.toJson();
         this.deepMerge("minecraft:item/components", newComponents);
         return this;
@@ -61,12 +61,12 @@ export class ItemComponents extends GeneratorBase<ItemComponents> {
         this.data = {};
     }
 
-    addComponent(id: string, data: Record<string, unknown> | string | number | boolean) {
+    addComponent(id: string, data: Record<string, unknown> | string | number | boolean): this {
         this.setValueAtPath(id, data);
         return this;
     }
 
-    addCustomComponent(id: string) {
+    addCustomComponent(id: string): this {
         const existingComponents = this.getValueAtPath<string[]>("minecraft:custom_components", []);
         existingComponents.push(id);
         this.setValueAtPath("minecraft:custom_components", existingComponents);
@@ -76,24 +76,24 @@ export class ItemComponents extends GeneratorBase<ItemComponents> {
     /**
      * The icon item componenent determines the icon to represent the item in the UI and elsewhere.
      */
-    addIcon(iconIdentifier: string) {
+    addIcon(iconIdentifier: string): this {
         return this.addComponent("minecraft:icon", iconIdentifier);
     }
 
-    setMaxStackSize(maxStackSize: number) {
+    setMaxStackSize(maxStackSize: number): this {
         return this.addComponent("minecraft:max_stack_size", {
             "value": maxStackSize
         });
     }
 
-    setWearable(protection: number, slot: ItemSlot) {
+    setWearable(protection: number, slot: ItemSlot): this {
         return this.addComponent("minecraft:wearable", {
             "protection": protection,
             "slot": slot
         });
     }
 
-    addTag(tag: string) {
+    addTag(tag: string): this {
         const existingTags = this.getValueAtPath<string[]>("minecraft:tags/tags", []);
         existingTags.push(tag);
         this.setValueAtPath("minecraft:tags/tags", existingTags);

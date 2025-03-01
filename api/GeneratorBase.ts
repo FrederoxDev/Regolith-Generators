@@ -35,7 +35,7 @@ export abstract class GeneratorBase<IGenerator extends GeneratorBase<IGenerator>
     /**
      * Utility to iterate over an iterable and call a callback with the generator and the value.
      */
-    public iterate<T>(iteratable: Iterable<T>, callback: (generator: IGenerator, value: T) => void) {
+    public iterate<T>(iteratable: Iterable<T>, callback: (generator: IGenerator, value: T) => void): this {
         for (const value of iteratable) {
             callback(this as unknown as IGenerator, value);
         }
@@ -51,7 +51,7 @@ export abstract class GeneratorBase<IGenerator extends GeneratorBase<IGenerator>
         return (this as unknown as IGenerator);
     }
 
-    public toJson() {
+    public toJson(): Record<string, unknown> {
         return this.data;
     }
 

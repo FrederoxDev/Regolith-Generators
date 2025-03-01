@@ -1,4 +1,4 @@
-import { existsSync } from "jsr:@std/fs";
+import { existsSync } from "jsr:@std/fs@1.0.6";
 import { GeneratorBase } from "../GeneratorBase.ts";
 
 export enum SoundCategory {
@@ -29,14 +29,14 @@ export class SoundDefinitions extends GeneratorBase<SoundDefinitions> {
         };
     }
 
-    static fromFile(projectNamespace: string, path: string) {
+    static fromFile(projectNamespace: string, path: string): SoundDefinitions {
         const content = Deno.readTextFileSync(path);
         const definitions = new SoundDefinitions(projectNamespace);
         definitions.data.sound_definitions = JSON.parse(content).sound_definitions;
         return definitions;
     }
 
-    public generate() {
+    public generate(): void {
         existsSync("RP/sounds") || Deno.mkdirSync("RP/sounds", { recursive: true });
         Deno.writeTextFileSync("RP/sounds/sound_definitions.json", JSON.stringify(this.data, null, 4));
     }

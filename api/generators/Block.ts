@@ -42,7 +42,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
     /**
      * Allows the block to be rotated in 90 degree increments
      */
-    addBasicRotation() {
+    addBasicRotation(): this {
         const enabledStatesPath = "minecraft:block/description/traits/minecraft:placement_direction/enabled_states";
         const enabledStates = this.getValueAtPath<string[]>(enabledStatesPath, []);
         enabledStates.push("minecraft:cardinal_direction");
@@ -66,7 +66,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         return this;
     }
 
-    addCardinalDirectionTrait() {
+    addCardinalDirectionTrait(): this {
         const enabledStatesPath = "minecraft:block/description/traits/minecraft:placement_direction/enabled_states";
         const enabledStates = this.getValueAtPath<string[]>(enabledStatesPath, []);
         enabledStates.push("minecraft:cardinal_direction");
@@ -74,7 +74,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         return this;
     }
 
-    addFacingDirectionTrait() {
+    addFacingDirectionTrait(): this {
         const enabledStatesPath = "minecraft:block/description/traits/minecraft:placement_direction/enabled_states";
         const enabledStates = this.getValueAtPath<string[]>(enabledStatesPath, []);
         enabledStates.push("minecraft:facing_direction");
@@ -82,7 +82,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         return this;
     }
 
-    addPermutation(condition: string, components: BlockComponents) {
+    addPermutation(condition: string, components: BlockComponents): this {
         const permutations = this.getValueAtPath<unknown[]>("minecraft:block/permutations", []);
 
         permutations.push({
@@ -97,13 +97,13 @@ export class BlockDef extends GeneratorBase<BlockDef> {
     /**
      * Adds an entire set of components at once
      */
-    addComponents(components: BlockComponents) {
+    addComponents(components: BlockComponents): this {
         const newComponents = components.toJson();
         this.deepMerge("minecraft:block/components", newComponents);
         return this;
     }
 
-    addCategory(category: string, itemGroup: ItemGroupID | undefined = undefined) {
+    addCategory(category: string, itemGroup: ItemGroupID | undefined = undefined): this {
         this.setValueAtPath("minecraft:block/description/menu_category/category", category);
 
         if (itemGroup !== undefined) {
@@ -122,17 +122,17 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         this.data = {};
     }
 
-    addComponent(id: string, data: Record<string, unknown> | string | number | boolean) {
+    addComponent(id: string, data: Record<string, unknown> | string | number | boolean): this {
         this.setValueAtPath(id, data);
         return this;
     }
 
-    addTag(id: string) {
+    addTag(id: string): this {
         this.setValueAtPath(`tag:${id}`, {});
         return this;
     }
 
-    addBasicMaterial(textureName: string, renderMethod: string | undefined = undefined) {
+    addBasicMaterial(textureName: string, renderMethod: string | undefined = undefined): this {
         const materialData: Record<string, unknown> = {
             "*": {
                 "texture": textureName
@@ -150,7 +150,7 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
     addBasicGeometry(
         modelIdentifier: string,
         boneVisibility: Record<string, string> | undefined = undefined
-    ) {
+    ): this {
         const geometryData: Record<string, unknown> = {
             identifier: modelIdentifier
         };
@@ -163,14 +163,14 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         return this;
     }
 
-    addTickComponent(interval: [number, number], looping = true) {
+    addTickComponent(interval: [number, number], looping = true): this {
         return this.addComponent("minecraft:tick", {
             "looping": looping,
             "interval_range": interval
         });
     }
 
-    addCustomComponent(id: string) {
+    addCustomComponent(id: string): this {
         const components = this.getValueAtPath<string[]>("minecraft:custom_components", []);
         components.push(id);
         this.setValueAtPath("minecraft:custom_components", components);
@@ -185,7 +185,7 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
      * @param value 
      * @returns 
      */
-    addDestructibleByMining(value: number | boolean) {
+    addDestructibleByMining(value: number | boolean): this {
         if (typeof value === "boolean") {
             return this.addComponent("minecraft:destructible_by_mining", value);
         }
@@ -202,7 +202,7 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
      * If the component is omitted, the block will have the default explosion resistance.
      * @param value Describes how resistant the block is to explosion. Greater values mean the block is less likely to break when near an explosion (or has higher resistance to explosions). The scale will be different for different explosion power levels. A negative value or 0 means it will easily explode; larger numbers increase level of resistance.
      */
-    addDestructibleByExplosion(value: number | boolean) {
+    addDestructibleByExplosion(value: number | boolean): this {
         if (typeof value === "boolean") {
             return this.addComponent("minecraft:destructible_by_explosion", value);
         }
@@ -217,7 +217,7 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
      * @param isRedstoneConductor Specifies if the block can be powered by redstone.
      * @param allowsWireToStepDown Specifies if redstone wire can stair-step downward on the block.
      */
-    addRedstoneConnectivity(isRedstoneConductor: boolean, allowsWireToStepDown: boolean = true) {
+    addRedstoneConnectivity(isRedstoneConductor: boolean, allowsWireToStepDown: boolean = true): this {
         return this.addComponent("minecraft:redstone_conductivity", {
             "redstone_conductor": isRedstoneConductor,
             "allows_wire_to_step_down": allowsWireToStepDown

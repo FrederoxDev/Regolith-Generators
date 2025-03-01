@@ -60,28 +60,28 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
         }
     }
 
-    addGeometry(geometryID: string, as = "default") {
+    addGeometry(geometryID: string, as = "default"): this {
         this.setValueAtPath("minecraft:client_entity/description/geometry", {
             [as]: geometryID
         });
         return this;
     }
 
-    addTexture(texturePath: string, as = "default") {
+    addTexture(texturePath: string, as = "default"): this {
         this.setValueAtPath("minecraft:client_entity/description/textures", {
             [as]: texturePath
         });
         return this;
     }
 
-    addMaterial(material: EntityMaterials | string, as = "default") {
+    addMaterial(material: EntityMaterials | string, as = "default"): this {
         this.setValueAtPath("minecraft:client_entity/description/materials", {
             [as]: material
         });
         return this;
     }
 
-    addDefaultRenderController() {
+    addDefaultRenderController(): this {
         const controllers = this.getValueAtPath<string[]>("minecraft:client_entity/description/render_controllers", []);
         controllers.push("controller.render.default");
         this.setValueAtPath("minecraft:client_entity/description/render_controllers", controllers);
