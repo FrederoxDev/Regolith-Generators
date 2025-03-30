@@ -26,7 +26,7 @@ export class ServerEntityDef extends GeneratorBase<ServerEntityDef> {
         super();
 
         this.data = {
-            "format_version": "1.20.80",
+            "format_version": "1.21.70",
             "minecraft:entity": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`
@@ -121,5 +121,30 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         existingFamilies.push(family);
         this.setValueAtPath("minecraft:type_family/family", existingFamilies);
         return this;
+    }
+
+    addBreathable(breathesWater: boolean): this {
+        return this.addComponent("minecraft:breathable", {
+            "breathes_water": breathesWater
+        });
+    }
+
+    addPushable(isPushable: boolean, isPushableByPiston: boolean): this {
+        return this.addComponent("minecraft:pushable", {
+            "is_pushable": isPushable,
+            "is_pushable_by_piston": isPushableByPiston
+        });
+    }
+
+    addPersistent(): this {
+        return this.addComponent("minecraft:persistent", {});
+    }
+
+    disableDamage(): this {
+        return this.addComponent("minecraft:damage_sensor", {
+            "triggers": {
+                "deals_damage": "no",
+            }
+        });
     }
 }

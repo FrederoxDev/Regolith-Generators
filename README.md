@@ -21,7 +21,7 @@ const blockNames = ["foo", "bar"];
 
 blockNames.forEach(id => {
     createFile({
-        "format_version": "1.21.0",
+        "format_version": "1.21.70",
         "minecraft:block": {
             "description": {
                 "identifier": `studio_name:${id}`,

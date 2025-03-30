@@ -21,7 +21,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         super();
 
         this.data = {
-            "format_version": "1.21.30",
+            "format_version": "1.21.70",
             "minecraft:block": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`,
@@ -145,6 +145,11 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
 
         this.setValueAtPath("minecraft:material_instances", materialData);
         return this;
+    }
+
+    addComplexMaterial(textures: Record<string, { textures: string }>): this {
+       this.setValueAtPath("minecraft:material_instances", textures);
+       return this; 
     }
 
     addBasicGeometry(

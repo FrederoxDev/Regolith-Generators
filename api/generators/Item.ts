@@ -28,7 +28,7 @@ export class ItemDef extends GeneratorBase<ItemDef> {
         super();
 
         this.data = {
-            "format_version": "1.21.10",
+            "format_version": "1.21.70",
             "minecraft:item": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`

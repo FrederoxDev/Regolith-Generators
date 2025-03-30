@@ -51,7 +51,7 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
         super();
 
         this.data = {
-            "format_version": "1.21.50",
+            "format_version": "1.21.70",
             "minecraft:client_entity": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`

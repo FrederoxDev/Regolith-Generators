@@ -20,7 +20,7 @@ export function MakeOreSet(blocks: BlockGenerator, items: ItemGenerator, project
             // .addCategory("nature", "itemGroup.name.ore")
 
         blocks.makeBlock(`deepslate_${materialName}_ore`)
-            .addCategory("nature", "itemGroup.name.ore")
+            // .addCategory("nature", "itemGroup.name.ore")
 
         items.makeItem(`raw_${materialName}`)
             .addComponents(
