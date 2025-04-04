@@ -78,6 +78,13 @@ export abstract class GeneratorBase<IGenerator extends GeneratorBase<IGenerator>
         }
         this.setValueAtPath(path, target);
     }
+
+    public if(condition: boolean, callback: (generator: IGenerator) => void): this {
+        if (condition) {
+            callback(this as unknown as IGenerator);
+        }
+        return this;
+    }
 }
 
 export abstract class GeneratorFactory<IBase extends GeneratorBase<IBase>> {

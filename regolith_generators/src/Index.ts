@@ -7,7 +7,6 @@ const DIRECTORIES = [
     join(Deno.cwd(), "BP"),
     join(Deno.cwd(), "RP"),
     join(Deno.cwd(), "data", "generated"),
-
 ]
 
 const denoConfigPath = join(ROOT_DIR, "packs", "data", "generated", "deno.json");

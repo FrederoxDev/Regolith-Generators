@@ -93,6 +93,11 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         return this;
     }
 
+    addTag(tag: string): this { 
+        this.setValueAtPath(`tag:${tag}`, {});
+        return this;
+    }
+
     addInventory(numSlots: number, isPrivate: boolean = false): this  {
         return this.addComponent("minecraft:inventory", {
             "inventory_size": numSlots,
@@ -118,6 +123,7 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
 
     addTypeFamily(family: string): this {
         const existingFamilies = this.getValueAtPath<string[]>("minecraft:type_family/family", []);
+        console.log(this, "existing", existingFamilies);
         existingFamilies.push(family);
         this.setValueAtPath("minecraft:type_family/family", existingFamilies);
         return this;
