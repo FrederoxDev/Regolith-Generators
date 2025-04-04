@@ -123,7 +123,6 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
 
     addTypeFamily(family: string): this {
         const existingFamilies = this.getValueAtPath<string[]>("minecraft:type_family/family", []);
-        console.log(this, "existing", existingFamilies);
         existingFamilies.push(family);
         this.setValueAtPath("minecraft:type_family/family", existingFamilies);
         return this;
