@@ -2,6 +2,7 @@ import { GeneratorBase } from "../GeneratorBase.ts";
 
 // type EmptyObject = Record<string | number | symbol, never>;
 
+type Constructor<T = {}> = new (...args: any[]) => T;
 type VariableExpr = string;
 type Variable<T> = T | VariableExpr;
 
@@ -22,18 +23,28 @@ function ControlNameFromDeclaration(declaration: string): string {
     return declaration;
 }
 
-type ResolveBaseProps<T> = T extends ControlRef<infer P> ? P : {};
-
-export class ControlRef<Props> {
+class ControlRef{
     owningNamespace: string;
-    declaration: string;
     controlName: string;
 
-    constructor(owningNamespace: string, declaration: string) {
+    constructor(owningNamespace: string, controlName: string) {
         this.owningNamespace = owningNamespace;
-        this.declaration = declaration;
-        this.controlName = ControlNameFromDeclaration(declaration);
+        this.controlName = controlName;
     }
+}
+
+export function GetRef<Props>(owningNamespace: string, controlName: string) {
+    const controlRef = new ControlRef(owningNamespace, controlName);
+
+    const ControlClass = class extends Control {
+        static controlName = controlName;
+
+        constructor(props: Props) {
+            super(controlRef);
+        }
+    }
+
+    return ControlClass;
 }
  
 export class UiFile extends GeneratorBase<UiFile> {
@@ -44,34 +55,53 @@ export class UiFile extends GeneratorBase<UiFile> {
     constructor(uiNamespace: string, existingData?: Record<string, unknown>) {
         super();
         this.data = existingData ?? {};
+        this.uiNamespace = uiNamespace;
         this.data.namespace = uiNamespace;
     }
 
-    addControl<E>(name: string, control: Control): ControlRef<E> {
-        const ref = new ControlRef(this.uiNamespace, name);
-        this.controls.set(ref.controlName, control);
-        return ref;
+    override toJson(): Record<string, unknown> {
+        const data = super.toJson();
+
+        this.controls.forEach((control, name) => {
+            data[name] = control.toJson();
+        });
+
+        return data;
+    }
+
+    addControl<Props>(controlName: string, control: Control) {
+        if (!(control instanceof Control)) {
+            throw new Error("Control must be an instance of Control.");
+        }
+
+        this.controls.set(controlName, control);
+
+        const controlRef = new ControlRef(this.uiNamespace, controlName);
+
+        const ControlClass = class extends Control {
+            static controlName = controlName;
+
+            constructor(props: Props) {
+                super(controlRef);
+            }
+        }
+
+        return ControlClass;
     }
 }
 
-export function GetRef<E>(namespace: string, controlName: string): ControlRef<E> {
-    const ref = new ControlRef<E>(namespace, controlName);
-    return ref;
-}
-
-export class Control<
-    ControlBaseProps extends ControlRef<ControlBaseProps> = ControlRef<any>
-> extends GeneratorBase<Control> {
+export class Control extends GeneratorBase<Control> {
     override data: Record<string, unknown>;
-    base?: string;
+    base: ControlRef | undefined;
     controls: [string, Control][] = [];
 
-    constructor(...args: any[]) {
+    constructor(base: ControlRef | undefined = undefined, ...args: any[]) {
         super();
+        this.base = base;
         this.data = {};
     }
 
-    protected setBase(base: string): this {
+    public setBase(base: ControlRef): this {
         this.base = base;
         return this;
     }
@@ -82,7 +112,14 @@ export class Control<
     }
 
     public addControl(name: string, control: Control): this {
-        this.controls.push([name, control]);
+        const base = control.base;
+
+        if (base != undefined) {
+            this.controls.push([`${name}@${base.owningNamespace}.${base.controlName}`, control]);
+        }
+        else {
+            this.controls.push([name, control]);
+        }
         return this;
     }
 
@@ -104,10 +141,6 @@ export class Control<
 
         this.controls.forEach(([name, control]) => {
             let key = `${name}`;
-            if (control.base) { 
-                key += `@${control.base}`;
-            }
-
             controls.push({ [key]: control.toJson() });
         });
 
@@ -119,29 +152,133 @@ export class Control<
     }
 }
 
-type Constructor<T = {}> = new (...args: any[]) => T;
+interface Binding {
+    /**
+     * If binding should be ignored
+     */
+    ignored?: boolean;
 
-interface SpriteComponentProps {
-    texture: Variable<string>;
+    binding_type: "global" | "view" | "collection" | "collection_details" | "none";
+
+    /**
+     * Stores the value of the data binding name or condition with it
+     */
+    binding_name?: string;
+
+    /**
+     * Name of the UI element property that will apply the stored value in binding_name
+     */
+    binding_name_override?: string
+
+    /**
+     * 	Name of the collection of items to be used
+     */
+    binding_collection_name?: string;
+
+    binding_collection_prefix?: string;
+
+    /**
+     * Condition for the data binding to happen.
+     */
+    binding_condition?: "always" | "always_when_visible" | "visible" | "once" | "none" | "visibility_changed";
+
+    /**
+     * Name of the UI element to observe its property values
+     */
+    source_control_name?: string;
+
+    /**
+     * Store the value of the property value of the UI element refered in source_control_name
+     */
+    source_property_name?: string;
+
+    /**
+     * The UI element property that the stored value in source_property_name will be applied to
+     */
+    target_property_name?: string;
+
+    /**
+     * 	If true, allows the selection of a sibling element in the same control instead of its child, for source_control_name
+     */
+    resolve_sibling_scope?: boolean;
 }
 
-function SpriteComponent<TBase extends Constructor<Control>>(Base: TBase) {
-    return class Sprite extends Base {
+// Component Props
+interface DataBindingProps {
+    bindings?: Binding[];
+}
+
+interface SpriteComponentProps {
+    texture?: Variable<string>;
+}
+
+interface LayoutComponentProps {
+    size?: Variable<Size2D>;
+    offset?: Variable<Size2D>;
+    anchor_to?: Variable<Anchor>;
+    anchor_from?: Variable<Anchor>;
+}
+
+interface ControlProps {
+    visible?: Variable<boolean>;
+    enabled?: Variable<boolean>;
+    layer?: Variable<number>;
+}
+
+interface LabelComponentProps {
+    text?: Variable<string>;
+    color?: Variable<[number, number, number]>;
+    locked_color?: Variable<[number, number, number]>;
+    shadow?: Variable<boolean>;
+    hide_hyphen?: Variable<boolean>;
+    notify_on_elipses?: Variable<string[]>;
+    enable_profanity_filter?: Variable<boolean>;
+    locked_alpha?: Variable<number>;
+    font_size?: Variable<"small" | "normal" | "large" | "extra_large">;
+    font_scale_factor?: Variable<number>;
+    localize?: Variable<boolean>;
+    line_padding?: Variable<number>;
+    font_type?: Variable<"default" | "rune" | "unicode" | "smooth" | "MinecraftTen">;
+    text_alignment?: Variable<"left" | "center" | "right">;
+}
+
+interface CustomRendererComponentProps {
+    renderer?: string;
+}
+
+interface StackPanelComponentProps {
+    orientation?: "horizontal" | "vertical";
+}
+
+interface CollectionComponentProps {
+    /**
+     * Name of the collection to be used
+     */
+    collection_name?: Variable<string>;
+}
+
+/**
+ * Props that are used within the UI generator. Not found in minecraft
+ */
+interface GeneratorProps {
+    handles_children?: true;
+}
+
+// Components
+function LabelComponent<TBase extends Constructor<Control>>(Base: TBase) {
+    return class Label extends Base {
         constructor(...args: any[]) {
             super(...args);
         }
     }
 }
 
-interface ControlComponentProps<BaseControlProps> {
-    base?: ControlRef<BaseControlProps>;
-}
-
-interface LayoutComponentProps {
-    size?: Size2D;
-    offset?: Size2D;
-    anchor_to?: Anchor;
-    anchor_from?: Anchor;
+function DataBindingComponent<TBase extends Constructor<Control>>(Base: TBase) {
+    return class DataBinding extends Base {
+        constructor(...args: any[]) {
+            super(...args);
+        }
+    }
 }
 
 function LayoutComponent<TBase extends Constructor<Control>>(Base: TBase) {
@@ -152,7 +289,60 @@ function LayoutComponent<TBase extends Constructor<Control>>(Base: TBase) {
     }
 }
 
-export interface PanelProps<BaseControlProps = ControlRef<any>> extends LayoutComponentProps, ControlComponentProps<BaseControlProps> {};
+function SpriteComponent<TBase extends Constructor<Control>>(Base: TBase) {
+    return class Sprite extends Base {
+        constructor(...args: any[]) {
+            super(...args);
+        }
+    }
+}
+
+function CustomRendererComponent<TBase extends Constructor<Control>>(Base: TBase) {
+    return class CustomRenderer extends Base {
+        constructor(...args: any[]) {
+            super(...args);
+        }
+    }
+}
+
+function StackPanelComponent<TBase extends Constructor<Control>>(Base: TBase) {
+    return class StackPanel extends Base {
+        constructor(...args: any[]) {
+            super(...args);
+        }
+    }
+}
+
+function CollectionComponent<TBase extends Constructor<Control>>(Base: TBase) {
+    return class Collection extends Base {
+        constructor(...args: any[]) {
+            super(...args);
+        }
+    }
+}
+
+// Element type props
+export interface PanelProps extends LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
+export interface ImageProps extends SpriteComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
+export interface LabelProps extends LabelComponentProps, LayoutComponentProps, ControlProps, GeneratorProps {};
+export interface CustomProps extends CustomRendererComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
+export interface StackPanelProps extends StackPanelComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, CollectionComponentProps, GeneratorProps {};
+export interface CollectionProps extends CollectionComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
+
+// Element types
+export class Label extends DataBindingComponent(LabelComponent(LayoutComponent(Control))) {
+    constructor(props: LabelProps) {
+        super();
+        this.setType("label");
+    }
+}
+
+export class Image extends DataBindingComponent(SpriteComponent(LayoutComponent(Control))) {
+    constructor(props: ImageProps) {
+        super();
+        this.setType("image");
+    }
+}
 
 export class Panel extends LayoutComponent(Control) {
     constructor(props: PanelProps) {
@@ -161,15 +351,23 @@ export class Panel extends LayoutComponent(Control) {
     }    
 }
 
-export interface ImageProps<BaseControlProps = any>
-  extends SpriteComponentProps,
-          LayoutComponentProps,
-          ControlComponentProps<BaseControlProps>,
-          ResolveBaseProps<BaseControlProps> {}
-
-export class Image extends SpriteComponent(LayoutComponent(Control)) {
-    constructor(props: ImageProps) {
+export class Custom extends CustomRendererComponent(DataBindingComponent(LayoutComponent(Control))) {
+    constructor(props: PanelProps) {
         super();
-        this.setType("image");
+        this.setType("custom");
+    }
+}
+
+export class StackPanel extends CollectionComponent(StackPanelComponent(DataBindingComponent(LayoutComponent(Control)))) {
+    constructor(props: StackPanelProps) {
+        super();
+        this.setType("stack_panel");
+    }
+}
+
+export class Collection extends CollectionComponent(DataBindingComponent(LayoutComponent(Control))) {
+    constructor(props: CollectionProps) {
+        super();
+        this.setType("collection");
     }
 }
