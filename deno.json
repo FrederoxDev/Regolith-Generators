@@ -1,0 +1,13 @@
+{
+    "name": "@frederoxdev/regolith-generators",
+    "lint": {
+        "rules": {
+            "rules": {
+                "missing-explicit-return-type": false
+            }
+        }
+    },
+    "version": "1.1.0",
+    "license": "MIT",
+    "exports": "./api/mod.ts"
+}

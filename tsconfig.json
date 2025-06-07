@@ -8,5 +8,10 @@
             "ESNext",
             "DOM"
         ]
-    }
+    },
+    "include": [
+        "api/**/*.ts",
+        "api/**/*.tsx",
+        "api/FakeGlobals.d.ts",
+    ]
 }

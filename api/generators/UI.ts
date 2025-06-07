@@ -207,22 +207,28 @@ export class Control extends GeneratorBase<Control> {
             data[key] = jsonified;
         }
 
-        const controls = this.getValueAtPath<Record<string, unknown>[] | string>("controls", []);
+        const rawControls = this.getValueAtPath<Record<string, unknown>[] | string>("controls", []);
 
         // Controls could possibly be a variable, in that scenario ignore it
         let controlsIsVariable = false;
+        let controls: Record<string, unknown>[] = [];
 
-        if (typeof controls === "string") {
-            if (!controls.startsWith("$")) {
-                throw new Error(`Only expected controls to be an array of controls or a variable, got: ${controls}, am I missing a use-case?`);
+        if (typeof rawControls === "string") {
+            if (!rawControls.startsWith("$")) {
+                throw new Error(`Only expected controls to be an array of controls or a variable, got: ${rawControls}, am I missing a use-case?`);
             }
 
             controlsIsVariable = true;
         }
+        else if (Array.isArray(rawControls)) {
+            controls = rawControls;
+        }
+        else {
+            throw new Error(`Expected controls to be an array of controls or a variable, got: ${rawControls}`);
+        }
 
         if (!controlsIsVariable) this.controls.forEach(([name, control]) => {
-            let key = `${name}`;
-            controls.push({ [key]: control.toJson() });
+            controls.push({ [`${name}`]: control.toJson() });
         });
 
         // Check for duplicate control names, sometimes running into issues where children get duplicated
