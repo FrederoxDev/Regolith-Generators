@@ -39,6 +39,14 @@ export function GetRef<Props extends GeneratorProps>(owningNamespace: string, co
     const ControlClass = class extends Control {
         static controlName = controlName;
 
+        static getFullName() {
+            return `${controlRef.owningNamespace}.${controlRef.controlName}`;
+        }
+
+        static getInheritName() {
+            return `@${controlRef.owningNamespace}.${controlRef.controlName}`;
+        }
+
         constructor(props: Props) {
             super(controlRef, props);
         }
@@ -46,6 +54,8 @@ export function GetRef<Props extends GeneratorProps>(owningNamespace: string, co
 
     return ControlClass;
 }
+
+export type UiRef<Props extends GeneratorProps> = any;;
  
 export class UiFile extends GeneratorBase<UiFile> {
     override data: Record<string, unknown>;
@@ -74,12 +84,27 @@ export class UiFile extends GeneratorBase<UiFile> {
             throw new Error("Control must be an instance of Control.");
         }
 
-        this.controls.set(controlName, control);
+        if (control.inheritedControl !== undefined) {
+            this.controls.set(`${controlName}@${control.inheritedControl.owningNamespace}.${control.inheritedControl.controlName}`, control);
+            // console.log(`Adding control ${controlName} to UI file ${this.uiNamespace} with inheritance from ${control.inheritedControl.owningNamespace}.${control.inheritedControl.controlName}`);
+        }
+        else {
+            this.controls.set(controlName, control);
+            // console.log(`Adding control ${controlName} to UI file ${this.uiNamespace}`);
+        }
 
         const controlRef = new ControlRef(this.uiNamespace, controlName);
 
         const ControlClass = class extends Control {
             static controlName = controlName;
+
+            static getFullName() {
+                return `${controlRef.owningNamespace}.${controlRef.controlName}`;
+            }
+
+            static getInheritName(name?: string) {
+                return `${name ?? ""}@${controlRef.owningNamespace}.${controlRef.controlName}`;
+            }
 
             constructor(props: Props) {
                 super(controlRef, props);
@@ -104,14 +129,22 @@ export class Control extends GeneratorBase<Control> {
     */
     controls: [string, Control][] = [];
 
+    key?: string;
+
     constructor(base: ControlRef | undefined = undefined, props: GeneratorProps, ...args: any[]) {
         super();
         this.inheritedControl = base;
         this.data = {};
+        this.key = props.key;
 
         if (props.children && props.children.length > 0) {
             props.children.forEach((child) => {
-                this.addControl(`${this.controls.length}`, child);
+                if (child.key !== undefined) {
+                    this.addControl(child.key, child);
+                }
+                else {
+                    this.addControl(`${this.controls.length}`, child);
+                }
             })
         }
     }
@@ -128,7 +161,7 @@ export class Control extends GeneratorBase<Control> {
 
     public addControl(name: string, control: Control): this {
         const base = control.inheritedControl;
-
+        
         if (!(control instanceof Control)) {
             throw new Error("Control must be an instance of Control.");
         }
@@ -156,11 +189,57 @@ export class Control extends GeneratorBase<Control> {
     public override toJson(): Record<string, unknown> {
         const data = super.toJson();
 
-        const controls = this.getValueAtPath<Record<string, unknown>[]>("controls", []);
+        // Check through data to find any instances where there are Control[]'s, if found flatten them into JSON
+        for (const key in data) {
+            const value = data[key];
 
-        this.controls.forEach(([name, control]) => {
+            if (!(Array.isArray(value) && value.every(item => item instanceof Control))) continue;
+
+            const jsonified = value.map((ctrl, idx) => {
+                const base = ctrl.inheritedControl === undefined
+                    ? ""
+                    : `@${ctrl.inheritedControl.owningNamespace}.${ctrl.inheritedControl.controlName}`;
+
+                const key = (ctrl.key ?? `${idx}`) + base;
+                return { [key]: ctrl.toJson() };
+            });
+
+            data[key] = jsonified;
+        }
+
+        const controls = this.getValueAtPath<Record<string, unknown>[] | string>("controls", []);
+
+        // Controls could possibly be a variable, in that scenario ignore it
+        let controlsIsVariable = false;
+
+        if (typeof controls === "string") {
+            if (!controls.startsWith("$")) {
+                throw new Error(`Only expected controls to be an array of controls or a variable, got: ${controls}, am I missing a use-case?`);
+            }
+
+            controlsIsVariable = true;
+        }
+
+        if (!controlsIsVariable) this.controls.forEach(([name, control]) => {
             let key = `${name}`;
             controls.push({ [key]: control.toJson() });
+        });
+
+        // Check for duplicate control names, sometimes running into issues where children get duplicated
+        // so this helps to catch that
+        const previouslySeenKeys = new Set<string>();
+
+        if (!controlsIsVariable) controls.forEach((item) => {
+            const key = Object.keys(item)[0];
+
+            if (previouslySeenKeys.has(key)) {
+                console.log("super", super.constructor.name);
+                console.log("this.controls", this.controls);
+                console.log("super data", data)
+                throw new Error(`Duplicate control name: ${key}`);
+            }
+
+            previouslySeenKeys.add(key);
         });
 
         if (controls.length > 0) {
@@ -171,13 +250,60 @@ export class Control extends GeneratorBase<Control> {
     }
 }
 
+interface AnimationComponentProps {
+    anim_type: "alpha" | "clip" | "color" | "flip_book" | "offset" | "size" | "uv" | "wait" | "aseprite_flip_book";
+    duration?: Variable<number>;
+    next?: Variable<string>;
+    destroy_at_end?: Variable<string>;
+    play_event?: Variable<string>;
+    end_event?: Variable<string>;
+    start_event?: Variable<string>;
+    reset_event?: Variable<string>;
+    easing?: "linear" | "spring" | "in_quad" | "out_quad" | "in_out_quad" | "in_cubic" | "out_cubic" | "in_out_cubic" | "in_quart" | "out_quart" | "in_out_quart" | "in_quint" | "out_quint" | "in_out_quint" | "in_sine" | "out_sine" | "in_out_sine" | 
+        "in_expo" | "out_expo" | "in_out_expo" | "in_circ" | "out_circ" | "in_out_circ" | "in_bounce" | "out_bounce" | "in_out_bounce" | "in_back" | "out_back" | "in_out_back" | "in_elastic" | "out_elastic" | "in_out_elastic";
+    from?: Variable<any>,
+    to?: Variable<any>;
+    initial_uv?: Variable<[number, number]>;
+    fps?: Variable<number>;
+    frame_count?: Variable<number>;
+    frame_step?: Variable<number>;
+    reversible?: Variable<boolean>;
+    resettable?: Variable<boolean>;
+    scale_from_starting_alpha?: Variable<boolean>;
+    activated?: Variable<boolean>;
+}
+
+interface Factory {
+    /**
+     * Map of control names to instances of controls.
+     * 
+     * @example
+     * "control_ids": {
+		        "test": "@server_form.list_filter_0"
+        }
+     */
+    control_ids?: Record<string, string>;
+
+    control_name?: string;
+
+    factory_variables?: Variable<any>;
+
+    insert_location?: Variable<any>
+
+    max_children_size?: Variable<number>;
+
+    max_size?: Variable<number>;
+
+    name?: string;
+}
+
 interface Binding {
     /**
      * If binding should be ignored
      */
     ignored?: boolean;
 
-    binding_type: "global" | "view" | "collection" | "collection_details" | "none";
+    binding_type?: "global" | "view" | "collection" | "collection_details" | "none";
 
     /**
      * Stores the value of the data binding name or condition with it
@@ -233,6 +359,7 @@ interface SpriteComponentProps {
 
 interface LayoutComponentProps {
     size?: Variable<Size2D>;
+    controls?: Variable<Control[]>;
     max_size?: Variable<Size2D>;
     min_size?: Variable<Size2D>;    
     offset?: Variable<Size2D>;
@@ -250,6 +377,25 @@ interface ControlProps {
     visible?: Variable<boolean>;
     enabled?: Variable<boolean>;
     layer?: Variable<number>;
+    alpha?: Variable<number>;
+    propagate_alpha?: Variable<boolean>;
+    clips_children?: Variable<boolean>;
+    allow_clipping?: Variable<boolean>;
+    clip_offset?: Variable<Size2D>;
+    clip_state_change_event?: Variable<string>;
+    enabled_scissor_test?: Variable<boolean>;
+    property_bag?: Variable<Record<string, unknown>>;
+    selected?: Variable<boolean>;
+    use_child_anchors?: Variable<boolean>;
+    anims?: Variable<string[]>;
+    disable_anim_fast_forward?: Variable<boolean>;
+    animation_reset_name?: Variable<string>;
+    ignored?: Variable<boolean>;
+    variables?: Variable<Record<string, unknown>>;
+    modifications?: Variable<any>;
+    grid_position?: Variable<Size2D>;
+    collection_index?: Variable<number>;
+    factory?: Factory;
 }
 
 interface LabelComponentProps {
@@ -297,6 +443,13 @@ interface InputComponentProps {
     consume_event?: Variable<boolean>;
     consume_hover_events?: Variable<boolean>;
     gesture_tracking_button?: Variable<string>;
+}
+
+interface ButtonComponentProps {
+    default_control?: Variable<string>;
+    hover_control?: Variable<string>;
+    pressed_control?: Variable<string>;
+    locked_control?: Variable<string>;
 }
 
 interface FocusComponentProps {
@@ -358,16 +511,48 @@ interface ScreenComponentProps {
     should_be_skipped_during_automation?: Variable<boolean>;
 }
 
+interface ToggleComponentProps {
+    radio_toggle_group?: Variable<boolean>;
+    toggle_name?: Variable<string>;
+    toggle_default_state?: Variable<boolean>;
+    toggle_group_forced_index?: Variable<number>;
+    toggle_group_default_selected?: Variable<number>;
+    reset_on_focus_lost?: Variable<boolean>;
+    toggle_on_hover?: Variable<string>;
+    toggle_on_button?: Variable<string>;
+    toggle_off_button?: Variable<string>;
+    enable_directional_toggling?: Variable<boolean>;
+    toggle_grid_collection_name?: Variable<string>;
+    checked_control?: Variable<string>;
+    unchecked_control?: Variable<string>;
+    checked_hover_control?: Variable<string>;
+    unchecked_hover_control?: Variable<string>;
+    checked_locked_control?: Variable<string>;
+    unchecked_locked_control?: Variable<string>;
+    checked_locked_hover_control?: Variable<string>;
+    unchecked_locked_hover_control?: Variable<string>;
+}
+
 /**
  * Props that are used within the UI generator. Not found in minecraft
  */
-interface GeneratorProps {
+export interface GeneratorProps {
     children?: Control[];
 
     /**
      * Can be used to define fallback values for variables
      */
     defaults?: Record<string, Variable<any>>;
+
+    /**
+     * Can be used to define both anchor_to and anchor_from at the same time
+     */
+    anchors?: Anchor;
+
+    /**
+     * Can be used to set a human-readable name for the control
+     */
+    key?: string;
 }
 
 // Components
@@ -459,6 +644,30 @@ function ScreenComponent<TBase extends Constructor<Control>>(Base: TBase) {
     }
 }
 
+function ToggleComponent<TBase extends Constructor<Control>>(Base: TBase) {
+    return class Toggle extends Base {
+        constructor(...args: any[]) {
+            super(...args);
+        }
+    }
+}
+
+function AnimationsComponent<TBase extends Constructor<Control>>(Base: TBase) {
+    return class Animations extends Base {
+        constructor(...args: any[]) {
+            super(...args);
+        }
+    }
+}
+
+function ButtonComponent<TBase extends Constructor<Control>>(Base: TBase) {
+    return class Button extends Base {
+        constructor(...args: any[]) {
+            super(...args);
+        }
+    }
+}
+
 // Element type props
 export interface PanelProps extends LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
 export interface ImageProps extends SpriteComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
@@ -468,6 +677,9 @@ export interface StackPanelProps extends StackPanelComponentProps, LayoutCompone
 export interface CollectionProps extends CollectionComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
 export interface InputPanelProps extends InputComponentProps, FocusComponentProps, SoundComponentProps, ControlProps, LayoutComponentProps, DataBindingProps, GeneratorProps {};
 export interface ScreenProps extends ScreenComponentProps, ControlProps, LayoutComponentProps, DataBindingProps, GeneratorProps {};
+export interface ToggleProps extends ToggleComponentProps, InputComponentProps, FocusComponentProps, SoundComponentProps, ControlProps, LayoutComponentProps, DataBindingProps, GeneratorProps {};
+export interface AnimationProps extends AnimationComponentProps, GeneratorProps {}
+export interface ButtonProps extends ButtonComponentProps, InputComponentProps, FocusComponentProps, SoundComponentProps, ControlProps, LayoutComponentProps, DataBindingProps, GeneratorProps {};
 
 // Element types
 export class Label extends DataBindingComponent(LabelComponent(LayoutComponent(Control))) {
@@ -492,7 +704,7 @@ export class Panel extends LayoutComponent(Control) {
 }
 
 export class Custom extends CustomRendererComponent(DataBindingComponent(LayoutComponent(Control))) {
-    constructor(props: PanelProps) {
+    constructor(props: CustomProps) {
         super(undefined, props);
         this.setType("custom");
     }
@@ -512,6 +724,13 @@ export class Collection extends CollectionComponent(DataBindingComponent(LayoutC
     }
 }
 
+export class CollectionPanel extends CollectionComponent(DataBindingComponent(LayoutComponent(Control))) {
+    constructor(props: CollectionProps) {
+        super(undefined, props);
+        this.setType("collection_panel");
+    }
+}
+
 export class InputPanel extends InputComponent(DataBindingComponent(FocusComponent(LayoutComponent(Control)))) {
     constructor(props: InputPanelProps) {
         super(undefined, props);
@@ -526,9 +745,42 @@ export class Screen extends ScreenComponent(DataBindingComponent(FocusComponent(
     }
 }
 
+export class Toggle extends ToggleComponent(InputComponent(DataBindingComponent(FocusComponent(LayoutComponent(Control))))) {
+    constructor(props: ToggleProps) {
+        super(undefined, props);
+        this.setType("toggle");
+    }
+}
+
+export class Button extends ButtonComponent(InputComponent(DataBindingComponent(FocusComponent(LayoutComponent(Control))))) {
+    constructor(props: ButtonProps) {
+        super(undefined, props);
+        this.setType("button");
+    }
+}
+
+export class Animation extends AnimationsComponent(Control) {
+    constructor(props: AnimationProps) {
+        super(undefined, props);
+    }
+
+    protected override setType(type: string): this {
+        return this;
+    }
+}
+
+
 // React implementation
 
-const UI_PROPS = ["panel","input_panel","image","grid","label","button","screen","scroll_box","stack_panel","toggle","slider","slider_box","dropdown","edit_box","custom","scroll_view","scroll_track","factory","selection_wheel","grid_page_indicator","label_cycler","image_cycler","collection_panel","controls","variables","visible","ignored","modifications","anims","disable_anim_fast_forward","animation_reset_name","enabled","layer","alpha","propagate_alpha","clips_children","allow_clipping","clip_offset","clip_state_change_event","enabled_scissor_test","property_bag","selected","use_child_anchors","grid_position","debug","anchor_from","anchor_to","contained","draggable","follows_cursor","offset","size","max_size","min_size","inherit_max_sibling_width","inherit_max_sibling_height","use_anchored_offset","bindings","sound_name","sound_pitch","sound_volume","default_focus_precedence","focus_enabled","focus_wrap_enabled","focus_magnet_enabled","focus_identifier","focus_change_down","focus_change_up","focus_change_left","focus_change_right","focus_mapping","focus_container","use_last_focus","focus_navigation_mode_left","focus_navigation_mode_right","focus_navigation_mode_down","focus_navigation_mode_up","focus_container_custom_left","focus_container_custom_right","focus_container_custom_down","focus_container_custom_up","button_mappings","modal","inline_modal","always_listen_to_input","always_handle_pointer","always_handle_controller_direction","hover_enabled","prevent_touch_input","consume_event","consume_hover_events","gesture_tracking_button","texture","uv","uv_size","nineslice_size","base_size","color","tiled","tiled_scale","clip_direction","clip_ratio","clip_pixelperfect","keep_ratio","bilinear","fill","grayscale","force_texture_reload","$fit_to_witdh","zip_folder","texture_file_system","allow_debug_missing_texture","pixel_perfect","grid_dimensions","maximum_grid_items","grid_dimension_binding","grid_rescaling_type","grid_fill_direction","precached_grid_item_count","grid_item_template","text","locked_color","shadow","font_size","font_scale_factor","localize","line_padding","font_type","backup_font_type","text_alignment","hide_hypen","locked_alpha","enable_profanity_filter","notify_on_ellipses","default_control","hover_control","pressed_control","locked_control","render_only_when_topmost","screen_not_flushable","always_accepts_input","render_game_behind","absorbs_input","is_showing_menu","is_modal","should_steal_mouse","low_frequency_rendering","screen_draws_last","vr_mode","force_render_below","send_telemetry","close_on_player_hurt","cache_screen","load_screen_immediately","gamepad_cursor","gamepad_cursor_deflection_mode","should_be_skipped_during_automation","orientation","radio_toggle_group","toggle_name","toggle_default_state","toggle_group_forced_index","toggle_group_default_selected","reset_on_focus_lost","toggle_on_button","toggle_off_button","enable_directional_toggling","toggle_grid_collection_name","checked_control","unchecked_control","checked_hover_control","unchecked_hover_control","checked_locked_control","unchecked_locked_control","checked_locked_hover_control","unchecked_locked_hover_control","slider_track_button","slider_small_decrease_button","slider_small_increase_button","slider_steps","slider_direction","slider_timeout","slider_collection_name","slider_name","slider_select_on_hover","slider_selected_button","slider_deselected_button","slider_box_control","background_control","background_hover_control","progress_control","progress_hover_control","indent_control","dropdown_name","dropdown_content_control","dropdown_area","text_box_name","text_edit_box_grid_collection_name","constrain_to_rect","enabled_newline","text_type","max_length","text_control","place_holder_control","can_be_deselected","always_listening","virtual_keyboard_buffer_control","renderer","scrollbar_track_button","scrollbar_touch_button","scroll_speed","gesture_control_enabled","always_handle_scrolling","touch_mode","scrollbar_box","scrollbar_track","scroll_view_port","scroll_content","scroll_box_and_track_panel","jump_to_bottom_on_update","allow_scroll_even_when_content_fits","inner_radius","outer_radius","state_controls","slice_count","button_name","iterate_left_button_name","iterate_right_button_name","initial_button_slice","grid_item_when_current","grid_item_when_not_current","cycler_manager_size_control_target","target_cycler_to_compare","next_sub_page_button_name","prev_sub_page_button_name","text_labels","images", "collection_name"];
+const UI_PROPS = ["panel","input_panel","image","grid","label","button","screen","scroll_box","stack_panel","toggle","slider","slider_box","dropdown","edit_box","custom","scroll_view","scroll_track","factory","selection_wheel","grid_page_indicator","label_cycler","image_cycler","collection_panel","controls","variables","visible","ignored","modifications","anims","disable_anim_fast_forward","animation_reset_name","enabled","layer","alpha","propagate_alpha","clips_children","allow_clipping","clip_offset","clip_state_change_event","enabled_scissor_test","property_bag","selected","use_child_anchors","grid_position","debug","anchor_from","anchor_to","contained","draggable","follows_cursor","offset","size","max_size","min_size","inherit_max_sibling_width","inherit_max_sibling_height","use_anchored_offset","bindings","sound_name","sound_pitch","sound_volume","default_focus_precedence","focus_enabled","focus_wrap_enabled","focus_magnet_enabled","focus_identifier","focus_change_down","focus_change_up","focus_change_left","focus_change_right","focus_mapping","focus_container","use_last_focus","focus_navigation_mode_left","focus_navigation_mode_right","focus_navigation_mode_down","focus_navigation_mode_up","focus_container_custom_left","focus_container_custom_right","focus_container_custom_down","focus_container_custom_up","button_mappings","modal","inline_modal","always_listen_to_input","always_handle_pointer","always_handle_controller_direction","hover_enabled","prevent_touch_input","consume_event","consume_hover_events","gesture_tracking_button","texture","uv","uv_size","nineslice_size","base_size","color","tiled","tiled_scale","clip_direction","clip_ratio","clip_pixelperfect","keep_ratio","bilinear","fill","grayscale","force_texture_reload","$fit_to_witdh","zip_folder","texture_file_system","allow_debug_missing_texture","pixel_perfect","grid_dimensions","maximum_grid_items","grid_dimension_binding","grid_rescaling_type","grid_fill_direction","precached_grid_item_count","grid_item_template","text","locked_color","shadow","font_size","font_scale_factor","localize","line_padding","font_type","backup_font_type","text_alignment","hide_hypen","locked_alpha","enable_profanity_filter","notify_on_ellipses","default_control","hover_control","pressed_control","locked_control","render_only_when_topmost","screen_not_flushable","always_accepts_input","render_game_behind","absorbs_input","is_showing_menu","is_modal","should_steal_mouse","low_frequency_rendering","screen_draws_last","vr_mode","force_render_below","send_telemetry","close_on_player_hurt","cache_screen","load_screen_immediately","gamepad_cursor","gamepad_cursor_deflection_mode","should_be_skipped_during_automation","orientation","radio_toggle_group","toggle_name","toggle_default_state","toggle_group_forced_index","toggle_group_default_selected","reset_on_focus_lost","toggle_on_button","toggle_off_button","enable_directional_toggling","toggle_grid_collection_name","checked_control","unchecked_control","checked_hover_control","unchecked_hover_control","checked_locked_control","unchecked_locked_control","checked_locked_hover_control","unchecked_locked_hover_control","slider_track_button","slider_small_decrease_button","slider_small_increase_button","slider_steps","slider_direction","slider_timeout","slider_collection_name","slider_name","slider_select_on_hover","slider_selected_button","slider_deselected_button","slider_box_control","background_control","background_hover_control","progress_control","progress_hover_control","indent_control","dropdown_name","dropdown_content_control","dropdown_area","text_box_name","text_edit_box_grid_collection_name","constrain_to_rect","enabled_newline","text_type","max_length","text_control","place_holder_control","can_be_deselected","always_listening","virtual_keyboard_buffer_control","renderer","scrollbar_track_button","scrollbar_touch_button","scroll_speed","gesture_control_enabled","always_handle_scrolling","touch_mode","scrollbar_box","scrollbar_track","scroll_view_port","scroll_content","scroll_box_and_track_panel","jump_to_bottom_on_update","allow_scroll_even_when_content_fits","inner_radius","outer_radius","state_controls","slice_count","button_name","iterate_left_button_name","iterate_right_button_name","initial_button_slice","grid_item_when_current","grid_item_when_not_current","cycler_manager_size_control_target","target_cycler_to_compare","next_sub_page_button_name","prev_sub_page_button_name","text_labels","images", "collection_name", "collection_index", "anim_type", "duration", "next", "destroy_at_end", "play_event", "end_event", "start_event", "reset_event", "easing", "from", "to", "initial_uv", "fps", "frame_count", "frame_step", "reversible", "resettable", "scale_from_starting_alpha", "activated", "control_ids",
+"control_name",
+"factory_variables",
+"insert_location",
+"max_children_size",
+"max_size",
+"name",
+"factory"
+];
 
 export function createMinecraftElement(
     controlConstructor: Constructor<Control>, 
@@ -561,6 +813,11 @@ export function createMinecraftElement(
     for (const [key, value] of Object.entries(properties ?? {})) {
         if (key.startsWith("$") || UI_PROPS.includes(key)) {
             element.data[key] = value;
+        }
+
+        if (key === "anchors") {
+            element.data.anchor_from = value;
+            element.data.anchor_to = value;
         }
     }
 

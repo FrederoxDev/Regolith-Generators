@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "jsx": "react",
+        "jsxFactory": "createMinecraftElement",
+        "jsxFragmentFactory": "createMinecraftFragment",
+        "allowImportingTsExtensions": true,
+        "lib": [
+            "ESNext",
+            "DOM"
+        ]
+    }
+}
