@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "jsx": "react",
+        "jsxFactory": "createMinecraftElement",
+        "jsxFragmentFactory": "createMinecraftFragment",
+        "allowImportingTsExtensions": true,
+        "lib": [
+            "ESNext",
+            "DOM"
+        ]
+    },
+    "include": [
+        "api/**/*.ts",
+        "api/**/*.tsx",
+        "api/FakeGlobals.d.ts",
+    ]
+}

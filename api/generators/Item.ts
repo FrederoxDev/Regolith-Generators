@@ -31,7 +31,10 @@ export class ItemDef extends GeneratorBase<ItemDef> {
             "format_version": "1.21.70",
             "minecraft:item": {
                 "description": {
-                    "identifier": `${projectNamespace}:${id}`
+                    "identifier": `${projectNamespace}:${id}`,
+                    "menu_category": {
+                        "category": "items"
+                    }
                 },
                 "components": {}
             }
