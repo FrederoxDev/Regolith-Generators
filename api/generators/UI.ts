@@ -397,7 +397,7 @@ interface ControlProps {
     disable_anim_fast_forward?: Variable<boolean>;
     animation_reset_name?: Variable<string>;
     ignored?: Variable<boolean>;
-    variables?: Variable<Record<string, unknown>>;
+    variables?: Variable<Record<string, unknown>[]>;
     modifications?: Variable<any>;
     grid_position?: Variable<Size2D>;
     collection_index?: Variable<number>;
