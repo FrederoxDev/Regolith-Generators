@@ -359,8 +359,68 @@ interface DataBindingProps {
     bindings?: Binding[];
 }
 
+// texture	string		Image path starting from pack root. (e.g. "textures/ui/White")
+// allow_debug_missing_texture	boolean	true	Display the missing_texture if the texture is not found
+// uv	Vector [u, v]		Start position of the texture mapping
+// uv_size	Vector [width, height]		Size of the texture mapping
+// texture_file_system	string	InUserPackage	Source to get the texture.
+// Possible values:
+// InUserPackage
+// InAppPackage
+// RawPath
+// RawPersistent
+// InSettingsDir
+// InExternalDir
+// InServerPackage
+// InDataDir
+// InUserDir
+// InWorldDir
+// StoreCache
+// Usage is Unknown
+// nineslice_size	int or Vector [x0, y0, x1, y1]		9-slice. A method that divides an texture into 9 pieces. When resized the corners will stay in place and the rest will stretch
+// tiled	boolean or enum		If the texture will tile when the size of the UI element is bigger than the texture size.
+// Possible values:
+// true/false
+// x
+// y
+// tiled_scale	Vector [sX, sY]	false	Scale of the tile textures
+// clip_direction	enum		Start point position for the clip_ratio. If down, the image will begin to appear from the bottom.
+// Possible values:
+// left
+// right
+// up
+// down
+// center
+// clip_ratio	float		How much to clip. From 0.0 to 1.0
+// clip_pixelperfect	boolean		If the clip should try to be the most pixel accurate possible
+// keep_ratio	boolean	true	Keep ratio when resizing image
+// bilinear	boolean	false	Use the bilinear function when resizing the image
+// fill	boolean	false	Scratch the image to the size
+// $fit_to_width	boolean		
+// zip_folder	string		
+// grayscale	boolean	false	Render image in black and white
+// force_texture_reload	boolean		Reload image when the texture path is changed
+// base_size	Vector [width, height]		
+
 interface SpriteComponentProps {
     texture?: Variable<string>;
+    allow_debug_missing_texture?: Variable<boolean>;
+    uv?: Variable<[number, number]>;
+    uv_size?: Variable<[number, number]>;
+    texture_file_system?: Variable<string>;
+    nineslice_size?: Variable<number | [number, number, number, number]>;
+    tiled?: Variable<boolean | "x" | "y">;
+    tiled_scale?: Variable<[number, number]>;
+    clip_direction?: Variable<"left" | "right" | "up" | "down" | "center">;
+    clip_ratio?: Variable<number>;
+    clip_pixelperfect?: Variable<boolean>;
+    keep_ratio?: Variable<boolean>;
+    bilinear?: Variable<boolean>;
+    fill?: Variable<boolean>;
+    grayscale?: Variable<boolean>;
+    zip_folder?: Variable<string>;
+    force_texture_reload?: Variable<boolean>;
+    base_size?: Variable<[number, number]>;
 }
 
 interface LayoutComponentProps {
