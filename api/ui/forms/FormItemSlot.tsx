@@ -1,8 +1,8 @@
-import { createMinecraftElement, FormIndexProvider, FormIndexProviderProps, Image, Label, Panel, Size2D } from "../../mod.ts";
+import { createMinecraftElement, FormIndexProvider, FormIndexProviderProps, Image, ImageProps, Label, Panel, Size2D } from "../../mod.ts";
 import { FormHoverButton } from "./FormHoverButton.tsx";
 import { FormItemRenderer } from "./FormItemRenderer.tsx";
 
-export interface FormItemSlotProps {
+export interface FormItemSlotProps extends ImageProps {
     cellSize: Size2D;
     itemSize: Size2D;
     isClickable?: boolean;

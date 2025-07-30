@@ -106,6 +106,14 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         });
     }
 
+    addEqippable(): this {
+        return this.addComponent("minecraft:equippable", {});
+    }
+
+    addCannotBeAttacked(): this {
+        return this.addComponent("minecraft:cannot_be_attacked", {});
+    }
+
     addPhysics(hasCollision: boolean, hasGravity: boolean, pushTowardsClosestSpace: boolean = false): this  {
         return this.addComponent("minecraft:physics", {
             "has_collision": hasCollision,

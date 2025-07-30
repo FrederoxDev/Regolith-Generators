@@ -14,6 +14,18 @@ export class BlockGenerator extends GeneratorFactory<BlockDef> {
 
 export type ItemGroupID = `itemGroup.name.${string}`;
 
+export type BlockFace = "all" | "side" | "up" | "down" | "north" | "south" | "east" | "west";
+
+interface PlacementFilterCondition {
+    allowed_faces: BlockFace[];
+    block_filter: (string | {
+        name: string,
+        states: Record<string, unknown>;
+    } | {
+        tags: string;
+    })[]
+}
+
 export class BlockDef extends GeneratorBase<BlockDef> {
     data: Record<string, unknown>;
 
@@ -42,23 +54,29 @@ export class BlockDef extends GeneratorBase<BlockDef> {
     /**
      * Allows the block to be rotated in 90 degree increments
      */
-    addBasicRotation(): this {
+    addBasicRotation(forEachDir?: (dir: string, permComponents: BlockComponents) => void): this {
         const enabledStatesPath = "minecraft:block/description/traits/minecraft:placement_direction/enabled_states";
         const enabledStates = this.getValueAtPath<string[]>(enabledStatesPath, []);
         enabledStates.push("minecraft:cardinal_direction");
         this.setValueAtPath(enabledStatesPath, enabledStates);
 
         const permutations = this.getValueAtPath<unknown[]>("minecraft:block/permutations", []);
-        const values = [["east", 90], ["north", 180], ["west", 270]];
+        const values: [string, number][] = [["east", 90], ["north", 180], ["west", 270]];
 
         for (const [state, rotation] of values) {
+            const components = new BlockComponents();
+
+            components.addTransformComponent({ 
+                rotation: [0, rotation, 0]
+            })
+
+            if (forEachDir !== undefined) {
+                forEachDir(state, components);
+            }
+
             permutations.push({
                 "condition": `query.block_state('minecraft:cardinal_direction') == '${state}'`,
-                "components": {
-                    "minecraft:transformation": {
-                        "rotation": [0, rotation, 0]
-                    }
-                }
+                "components": components.toJson()
             });
         }
 
@@ -175,10 +193,28 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         });
     }
 
+    addTransformComponent(args: {
+        rotation?: [number, number, number],
+        rotation_pivot?: [number, number, number],
+        scale?: [number, number, number],
+        scale_pivot?: [number, number, number],
+        translation?: [number, number, number],
+    }): this {
+        this.setValueAtPath("minecraft:transformation", args);
+        return this;
+    }
+
     addCustomComponent(id: string): this {
         const components = this.getValueAtPath<string[]>("minecraft:custom_components", []);
         components.push(id);
         this.setValueAtPath("minecraft:custom_components", components);
+        return this;
+    }
+
+    addPlacementFilter(condition: PlacementFilterCondition[]) {
+        this.setValueAtPath("minecraft:placement_filter", {
+            "conditions": condition
+        });
         return this;
     }
 
@@ -227,5 +263,21 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
             "redstone_conductor": isRedstoneConductor,
             "allows_wire_to_step_down": allowsWireToStepDown
         });
+    }
+
+    addCollsionBox(origin: [number, number, number], size: [number, number, number]): this {
+        this.setValueAtPath("minecraft:collision_box", {
+            "origin": origin,
+            "size": size
+        });
+        return this;
+    }
+
+    addSelectionBox(origin: [number, number, number], size: [number, number, number]): this {
+        this.setValueAtPath("minecraft:selection_box", {
+            "origin": origin,
+            "size": size
+        });
+        return this;
     }
 }

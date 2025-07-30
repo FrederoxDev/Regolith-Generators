@@ -3,7 +3,7 @@
         "jsx": "react",
         "jsxFactory": "createMinecraftElement",
         "jsxFragmentFactory": "createMinecraftFragment",
-        "allowImportingTsExtensions": true,
+        // "allowImportingTsExtensions": true,
         "lib": [
             "ESNext",
             "DOM"

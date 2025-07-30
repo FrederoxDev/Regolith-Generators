@@ -102,4 +102,9 @@ export class ItemComponents extends GeneratorBase<ItemComponents> {
         this.setValueAtPath("minecraft:tags/tags", existingTags);
         return this;
     }
+
+    addGlint(): this {
+        this.setValueAtPath("minecraft:glint", true);
+        return this;
+    }
 }

@@ -35,4 +35,7 @@ async function runScript(filePath: string) {
 }
 
 await Promise.all(tsFiles.map(runScript));
-await Promise.all(tsFiles.map((path) => Deno.remove(path)));
+
+await Promise.all(tsFiles.map((path) => {
+    Deno.remove(path)
+}));
