@@ -89,7 +89,7 @@ export class UiFile extends GeneratorBase<UiFile> {
 
         if (control.inheritedControl !== undefined) {
             const inherits = control.inheritedControl.getInheritName();
-            this.controls.set(`${controlName}@${inherits}`, control);
+            this.controls.set(`${controlName}${inherits}`, control);
             // console.log(`Adding control ${controlName} to UI file ${this.uiNamespace} with inheritance from ${control.inheritedControl.owningNamespace}.${control.inheritedControl.controlName}`);
         }
         else {
