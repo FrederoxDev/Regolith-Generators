@@ -49,4 +49,5 @@ export class Common {
     public static CommonPanel = GetRef<CommonPanelProps & PanelProps>("common", "common_panel");
     public static ScrollingPanel = GetRef<CommonScrollingPanelProps & PanelProps>("common", "scrolling_panel");
     public static Toggle = GetRef<CommmonToggleProps>("common", "toggle");
+    public static EmptyPanel = GetRef<PanelProps>("common", "empty_panel");
 }

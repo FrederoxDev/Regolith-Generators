@@ -10,41 +10,44 @@ export type Size = Variable<number> | `${number}` | `${number}px` | `${number}%$
 export type Size2D = [Size, Size];
 export type Anchor = "top_left" | "top_middle" | "top_right" | "left_middle" | "center" | "right_middle" | "bottom_left" | "bottom_middle" | "bottom_right";
 
-function FromSizeLike(x: Size, y: Size): Size2D;
-function FromSizeLike(x: Size2D): Size2D;
-function FromSizeLike(x: Size | Size2D, y?: Size): Size2D {
-    if (Array.isArray(x)) return x;
-    if (y === undefined) throw new Error("Invalid arguments for FromSizeLike.");
-    return [x, y];
-}
-
-function ControlNameFromDeclaration(declaration: string): string {
-    if (declaration.includes("@")) return declaration.split("@")[0];
-    return declaration;
-}
-
-class ControlRef{
-    owningNamespace: string;
+class ControlRef {
+    owningNamespace: string | undefined;
     controlName: string;
 
-    constructor(owningNamespace: string, controlName: string) {
+    constructor(owningNamespace: string | undefined, controlName: string) {
         this.owningNamespace = owningNamespace;
         this.controlName = controlName;
     }
+
+    getInheritName() {
+        if (this.owningNamespace === undefined) {
+            return `@${this.controlName}`;
+        }
+
+        return `@${this.owningNamespace}.${this.controlName}`;
+    }
+
+    getFullName() {
+        if (this.owningNamespace === undefined) {
+            return this.controlName;
+        }
+
+        return `${this.owningNamespace}.${this.controlName}`;
+    }
 }
 
-export function GetRef<Props extends GeneratorProps>(owningNamespace: string, controlName: string) {
+export function GetRef<Props extends GeneratorProps>(owningNamespace: string | undefined, controlName: string) {
     const controlRef = new ControlRef(owningNamespace, controlName);
 
     const ControlClass = class extends Control {
         static controlName = controlName;
 
         static getFullName() {
-            return `${controlRef.owningNamespace}.${controlRef.controlName}`;
+            return controlRef.getFullName();
         }
 
         static getInheritName() {
-            return `@${controlRef.owningNamespace}.${controlRef.controlName}`;
+            return controlRef.getInheritName();
         }
 
         constructor(props: Props) {
@@ -85,7 +88,8 @@ export class UiFile extends GeneratorBase<UiFile> {
         }
 
         if (control.inheritedControl !== undefined) {
-            this.controls.set(`${controlName}@${control.inheritedControl.owningNamespace}.${control.inheritedControl.controlName}`, control);
+            const inherits = control.inheritedControl.getInheritName();
+            this.controls.set(`${controlName}@${inherits}`, control);
             // console.log(`Adding control ${controlName} to UI file ${this.uiNamespace} with inheritance from ${control.inheritedControl.owningNamespace}.${control.inheritedControl.controlName}`);
         }
         else {
@@ -99,11 +103,11 @@ export class UiFile extends GeneratorBase<UiFile> {
             static controlName = controlName;
 
             static getFullName() {
-                return `${controlRef.owningNamespace}.${controlRef.controlName}`;
+                return controlRef.getFullName();
             }
 
-            static getInheritName(name?: string) {
-                return `${name ?? ""}@${controlRef.owningNamespace}.${controlRef.controlName}`;
+            static getInheritName() {
+                return controlRef.getInheritName();
             }
 
             constructor(props: Props) {
@@ -167,7 +171,7 @@ export class Control extends GeneratorBase<Control> {
         }
 
         if (base != undefined) {
-            this.controls.push([`${name}@${base.owningNamespace}.${base.controlName}`, control]);
+            this.controls.push([`${name}@${base.getFullName()}`, control]);
         }
         else {
             this.controls.push([name, control]);
@@ -198,7 +202,7 @@ export class Control extends GeneratorBase<Control> {
             const jsonified = value.map((ctrl, idx) => {
                 const base = ctrl.inheritedControl === undefined
                     ? ""
-                    : `@${ctrl.inheritedControl.owningNamespace}.${ctrl.inheritedControl.controlName}`;
+                    : ctrl.inheritedControl.getInheritName();
 
                 const key = (ctrl.key ?? `${idx}`) + base;
                 return { [key]: ctrl.toJson() };
@@ -358,49 +362,6 @@ interface Binding {
 interface DataBindingProps {
     bindings?: Binding[];
 }
-
-// texture	string		Image path starting from pack root. (e.g. "textures/ui/White")
-// allow_debug_missing_texture	boolean	true	Display the missing_texture if the texture is not found
-// uv	Vector [u, v]		Start position of the texture mapping
-// uv_size	Vector [width, height]		Size of the texture mapping
-// texture_file_system	string	InUserPackage	Source to get the texture.
-// Possible values:
-// InUserPackage
-// InAppPackage
-// RawPath
-// RawPersistent
-// InSettingsDir
-// InExternalDir
-// InServerPackage
-// InDataDir
-// InUserDir
-// InWorldDir
-// StoreCache
-// Usage is Unknown
-// nineslice_size	int or Vector [x0, y0, x1, y1]		9-slice. A method that divides an texture into 9 pieces. When resized the corners will stay in place and the rest will stretch
-// tiled	boolean or enum		If the texture will tile when the size of the UI element is bigger than the texture size.
-// Possible values:
-// true/false
-// x
-// y
-// tiled_scale	Vector [sX, sY]	false	Scale of the tile textures
-// clip_direction	enum		Start point position for the clip_ratio. If down, the image will begin to appear from the bottom.
-// Possible values:
-// left
-// right
-// up
-// down
-// center
-// clip_ratio	float		How much to clip. From 0.0 to 1.0
-// clip_pixelperfect	boolean		If the clip should try to be the most pixel accurate possible
-// keep_ratio	boolean	true	Keep ratio when resizing image
-// bilinear	boolean	false	Use the bilinear function when resizing the image
-// fill	boolean	false	Scratch the image to the size
-// $fit_to_width	boolean		
-// zip_folder	string		
-// grayscale	boolean	false	Render image in black and white
-// force_texture_reload	boolean		Reload image when the texture path is changed
-// base_size	Vector [width, height]		
 
 interface SpriteComponentProps {
     texture?: Variable<string>;
