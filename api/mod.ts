@@ -8,6 +8,7 @@ export * from "./generators/Item.ts";
 export * from "./common/OreSet.ts";
 export * from "./generators/UI.ts"
 export * from "./ui/mod.ts"
+export * from "./generators/Recipe.ts"
 
 /**
  * Simple wrapper to writing files in the regolith temp directory
