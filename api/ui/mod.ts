@@ -6,3 +6,4 @@ export * from "./forms/FormHoverButton.tsx";
 export * from "./minecraft/Common.tsx";
 export * from "./minecraft/Beacon.tsx";
 export * from "./minecraft/CommonToggles.tsx";
+export * from "./common/Inventory.tsx";
