@@ -127,6 +127,8 @@ This allows you to spend more time on the things that matter, increasing iterati
 
 Regolith-generators is **not** feature complete, far from it infact. This project is mainly being built along my own process to exactly fit my current needs, and therefore I haven't spent the time adding every component or making generator types for everything yet. **However** it is designed to be as simple as possible to add new generator types.
 
+Before this library, whenever I wanted to automate generating files from JS/TS I had to write the basic stuff over-and-over again and had to handle the boring bits like matching the exact json structure of item files for example. The goal of this is to be the **only** toolkit you need and allow you to expand it to fit your own needs, and avoid writing one-off tools.
+
 ## Features
 
 Currently Regolith-Generators is mainly built for creating: Blocks, Items, ServerEntities, ClientEntities, Recipes and UI, however this is very likely to expand across pretty much everything avaliable whenever I need it.
