@@ -12,11 +12,18 @@ export class RecipeGenerator extends GeneratorFactory<ShapedRecipe> {
         this.filesToGenerate.set(id, def);
         return def;
     }
+
+    makeShapelessRecipe(id: string, ingredients: ItemIngredient[], result: ItemIngredient, tags = ["crafting_table"]): ShapelessRecipe {
+        const def = new ShapelessRecipe(this.projectNamespace, id, ingredients, result, tags);
+        this.filesToGenerate.set(id, def);
+        return def;
+    }
 }
 
 export type ItemIngredient = {
     item: string;
     data?: number;
+    count?: number;
 }
 
 export class ShapedRecipe extends GeneratorBase<ShapedRecipe> {
@@ -33,6 +40,25 @@ export class ShapedRecipe extends GeneratorBase<ShapedRecipe> {
                 "tags": tags,
                 "pattern": pattern,
                 "key": key,
+                "result": result
+            }
+        };
+    }
+}
+
+export class ShapelessRecipe extends GeneratorBase<ShapelessRecipe> {
+    data: Record<string, unknown>;
+
+    constructor(projectNamespace: string, id: string, ingredients: ItemIngredient[], result: ItemIngredient, tags = ["crafting_table"]) {
+        super();
+        this.data = {
+            "format_version": "1.17",
+            "minecraft:recipe_shapeless": {
+                "description": {
+                    "identifier": `${projectNamespace}:${id}`
+                },
+                "tags": tags,
+                "ingredients": ingredients,
                 "result": result
             }
         };

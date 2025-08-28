@@ -7,3 +7,4 @@ export * from "./minecraft/Common.tsx";
 export * from "./minecraft/Beacon.tsx";
 export * from "./minecraft/CommonToggles.tsx";
 export * from "./common/Inventory.tsx";
+export * from "./common/Hovertext.tsx";

@@ -68,9 +68,9 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
     }
 
     addTexture(texturePath: string, as = "default"): this {
-        this.setValueAtPath("minecraft:client_entity/description/textures", {
-            [as]: texturePath
-        });
+        const existing = this.getValueAtPath("minecraft:client_entity/description/textures", {});
+        existing[as] = texturePath;
+        this.setValueAtPath("minecraft:client_entity/description/textures", existing);
         return this;
     }
 
@@ -85,6 +85,46 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
         const controllers = this.getValueAtPath<string[]>("minecraft:client_entity/description/render_controllers", []);
         controllers.push("controller.render.default");
         this.setValueAtPath("minecraft:client_entity/description/render_controllers", controllers);
+        return this;
+    }
+
+    addRenderController(controllerId: string): this {
+        const controllers = this.getValueAtPath<string[]>("minecraft:client_entity/description/render_controllers", []);
+        controllers.push(controllerId);
+        this.setValueAtPath("minecraft:client_entity/description/render_controllers", controllers);
+        return this;
+    }
+
+    defineAnimation(animName: string, animId: string): this {
+        this.setValueAtPath(`minecraft:client_entity/description/animations/${animName}`, animId);
+        return this;
+    }
+
+    /**
+     * Adds an animation that always plays
+     * @param animName The name of the animation
+     */
+    addAnimation(animName: string): this;
+    /**
+     * Adds an animation that plays conditionally
+     * @param animName The name of the animation
+     * @param condition The molang condition to play it under 
+     */
+    addAnimation(animName: string, condition: string): this;
+    addAnimation(animName: string, condition?: string): this {
+        const animateFields = this.getValueAtPath("minecraft:client_entity/description/scripts/animate", []);
+
+        if (condition) {
+            animateFields.push({
+                [animName]: condition 
+            })
+        }
+        else {
+            animateFields.push(animName);
+        }
+
+        this.setValueAtPath("minecraft:client_entity/description/scripts/animate", animateFields);
+
         return this;
     }
 }
