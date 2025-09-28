@@ -5,6 +5,7 @@ export * from "./generators/ServerEntity.ts";
 export * from "./generators/ClientEntity.ts";
 export * from "./generators/SoundDefinitions.ts";
 export * from "./generators/Item.ts";
+export * from "./generators/ItemCatalog.ts";
 export * from "./common/OreSet.ts";
 export * from "./generators/UI.ts"
 export * from "./ui/mod.ts"

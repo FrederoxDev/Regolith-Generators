@@ -21,6 +21,16 @@ export class ItemGenerator extends GeneratorFactory<ItemDef> {
     }
 }
 
+// export type ItemCategory = "construction" | "equipment" | "items" | "nature" | "none";
+
+export enum ItemCategory {
+    Construction = "construction",
+    Equipment = "equipment",
+    Items = "items",
+    Nature = "nature",
+    None = "none"
+}
+
 export class ItemDef extends GeneratorBase<ItemDef> {
     data: Record<string, unknown>;
 
@@ -44,6 +54,16 @@ export class ItemDef extends GeneratorBase<ItemDef> {
     addComponents(components: ItemComponents): this{
         const newComponents = components.toJson();
         this.deepMerge("minecraft:item/components", newComponents);
+        return this;
+    }
+
+    setHiddenInCommands(): this {
+        this.setValueAtPath("minecraft:item/description/menu_category/is_hidden_in_commands", true);
+        return this;
+    }
+
+    setCategory(category: ItemCategory) {
+        this.setValueAtPath("minecraft:item/description/menu_category/category", category);
         return this;
     }
 }

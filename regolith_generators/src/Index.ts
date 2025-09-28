@@ -10,11 +10,12 @@ const DIRECTORIES = [
 ]
 
 const denoConfigPath = join(ROOT_DIR, "packs", "data", "generated", "deno.json");
+const bpScriptsDir = join(Deno.cwd(), "BP", "scripts");
 
 const tsFiles: string[] = [];
 
 for (const dir of DIRECTORIES) {
-    for (const entry of walkSync(dir, { exts: [".ts", ".tsx"], includeFiles: true })) {
+    for (const entry of walkSync(dir, { exts: [".ts", ".tsx"], includeFiles: true, skip: [bpScriptsDir] })) {
         tsFiles.push(entry.path);
     }
 }

@@ -1,4 +1,6 @@
 import { GeneratorBase, GeneratorFactory } from "../GeneratorBase.ts";
+import { ItemCategory } from "./Item.js";
+import { VanillaItemGroup } from "./ItemCatalog.js";
 
 export class BlockGenerator extends GeneratorFactory<BlockDef> {
     constructor(projectNamespace: string) {
@@ -121,7 +123,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         return this;
     }
 
-    addCategory(category: string, itemGroup: ItemGroupID | undefined = undefined): this {
+    setCategory(category: ItemCategory, itemGroup: VanillaItemGroup | undefined = undefined): this {
         this.setValueAtPath("minecraft:block/description/menu_category/category", category);
 
         if (itemGroup !== undefined) {
@@ -130,6 +132,14 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         
         return this;
     }
+}
+
+export enum BlockRenderMethod {
+    AlphaTest = "alpha_test",
+    AlphaTestSingleSided = "alpha_test_single_sided",
+    Blend = "blend",
+    DoubleSided = "double_sided",
+    Opaque = "opaque"
 }
 
 export class BlockComponents extends GeneratorBase<BlockComponents> {
@@ -150,7 +160,7 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         return this;
     }
 
-    addBasicMaterial(textureName: string, renderMethod: string | undefined = undefined): this {
+    addBasicMaterial(textureName: string, renderMethod: BlockRenderMethod | undefined = undefined): this {
         const materialData: Record<string, unknown> = {
             "*": {
                 "texture": textureName
@@ -209,6 +219,13 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         components.push(id);
         this.setValueAtPath("minecraft:custom_components", components);
         return this;
+    }
+
+    addCraftingTableComponent(tags: string[], tableName: string | undefined = undefined): this {
+        return this.addComponent("minecraft:crafting_table", {
+            "crafting_tags": tags,
+            "table_name": tableName
+        });
     }
 
     addPlacementFilter(condition: PlacementFilterCondition[]) {

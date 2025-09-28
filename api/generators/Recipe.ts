@@ -18,13 +18,19 @@ export class RecipeGenerator extends GeneratorFactory<ShapedRecipe> {
         this.filesToGenerate.set(id, def);
         return def;
     }
+
+    makeFurnaceRecipe(id: string, input: ItemIngredient, result: ItemIngredient, tags = ["furnace"]): FurnaceRecipe {
+        const def = new FurnaceRecipe(this.projectNamespace, id, input, result, tags);
+        this.filesToGenerate.set(id, def);
+        return def;
+    }
 }
 
 export type ItemIngredient = {
     item: string;
     data?: number;
     count?: number;
-}
+} | string;
 
 export class ShapedRecipe extends GeneratorBase<ShapedRecipe> {
     data: Record<string, unknown>;
@@ -60,6 +66,25 @@ export class ShapelessRecipe extends GeneratorBase<ShapelessRecipe> {
                 "tags": tags,
                 "ingredients": ingredients,
                 "result": result
+            }
+        };
+    }
+}
+
+export class FurnaceRecipe extends GeneratorBase<FurnaceRecipe> {
+    data: Record<string, unknown>;
+
+    constructor(projectNamespace: string, id: string, input: ItemIngredient, result: ItemIngredient, tags = ["furnace"]) {
+        super();
+        this.data = {
+            "format_version": "1.17",
+            "minecraft:recipe_furnace": {
+                "description": {
+                    "identifier": `${projectNamespace}:${id}`
+                },
+                "tags": tags,
+                "input": input,
+                "output": result
             }
         };
     }

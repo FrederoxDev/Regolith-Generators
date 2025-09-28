@@ -1,4 +1,4 @@
-import { BlockGenerator, ItemComponents, ItemGenerator } from "../mod.ts";
+import { BlockGenerator, ItemCategory, ItemComponents, ItemGenerator, VanillaItemGroup } from "../mod.ts";
 
 /**
  * Creates an entire set for an ore.
@@ -11,16 +11,18 @@ import { BlockGenerator, ItemComponents, ItemGenerator } from "../mod.ts";
  *  - raw_materialName
  */
 export function MakeOreSet(blocks: BlockGenerator, items: ItemGenerator, projectNamespace: string, materialName: string, includeOre: boolean = true) {
-    blocks.makeBlock(`${materialName}_block`);
+    blocks.makeBlock(`${materialName}_block`)
+        .setCategory(ItemCategory.Construction)
 
     if (includeOre) {
         blocks.makeBlock(`raw_${materialName}_block`)
+            .setCategory(ItemCategory.Construction)
 
         blocks.makeBlock(`${materialName}_ore`)
-            // .addCategory("nature", "itemGroup.name.ore")
+            .setCategory(ItemCategory.Nature, VanillaItemGroup.Ore)
 
         blocks.makeBlock(`deepslate_${materialName}_ore`)
-            // .addCategory("nature", "itemGroup.name.ore")
+            .setCategory(ItemCategory.Nature, VanillaItemGroup.Ore)
 
         items.makeItem(`raw_${materialName}`)
             .addComponents(
