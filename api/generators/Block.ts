@@ -1,6 +1,6 @@
 import { GeneratorBase, GeneratorFactory } from "../GeneratorBase.ts";
-import { ItemCategory } from "./Item.js";
-import { VanillaItemGroup } from "./ItemCatalog.js";
+import { ItemCategory } from "./Item.ts";
+import { VanillaItemGroup } from "./ItemCatalog.ts";
 
 export class BlockGenerator extends GeneratorFactory<BlockDef> {
     constructor(projectNamespace: string) {
