@@ -110,6 +110,10 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         return this.addComponent("minecraft:equippable", {});
     }
 
+    addIsCollidable(): this {
+        return this.addComponent("minecraft:is_collidable", {});
+    }
+
     addCannotBeAttacked(): this {
         return this.addComponent("minecraft:cannot_be_attacked", {});
     }

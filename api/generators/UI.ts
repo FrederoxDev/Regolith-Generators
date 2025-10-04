@@ -235,6 +235,8 @@ export class Control extends GeneratorBase<Control> {
             controls.push({ [`${name}`]: control.toJson() });
         });
 
+        // const rawModifications = this.getValueAtPath<Record<string, unknown>[] | string>("modifications/value", []);
+
         // Check for duplicate control names, sometimes running into issues where children get duplicated
         // so this helps to catch that
         const previouslySeenKeys = new Set<string>();
@@ -400,6 +402,12 @@ interface LayoutComponentProps {
     follows_cursor?: Variable<boolean>;
 }
 
+interface Modification {
+    operation: "insert_back" | "insert_front" | "insert_after" | "insert_before" | "move_back" | "move_front" | "swap" | "remove" | "replace";
+    array_name: string;
+    value: any[];
+}
+
 interface ControlProps {
     visible?: Variable<boolean>;
     enabled?: Variable<boolean>;
@@ -419,7 +427,7 @@ interface ControlProps {
     animation_reset_name?: Variable<string>;
     ignored?: Variable<boolean>;
     variables?: Variable<Record<string, unknown>[]>;
-    modifications?: Variable<any>;
+    modifications?: Variable<Modification[]>;
     grid_position?: Variable<Size2D>;
     collection_index?: Variable<number>;
     factory?: Factory;

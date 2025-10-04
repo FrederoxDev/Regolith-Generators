@@ -96,6 +96,10 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
     }
 
     defineAnimation(animName: string, animId: string): this {
+        if (animName.startsWith("animation.")) {
+            throw new Error("animName cannot start with animation., you have the parameters backwards");
+        }
+
         this.setValueAtPath(`minecraft:client_entity/description/animations/${animName}`, animId);
         return this;
     }
