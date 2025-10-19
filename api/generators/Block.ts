@@ -160,6 +160,10 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         return this;
     }
 
+    addLoot(table: string): this {
+        return this.addComponent("minecraft:loot", table);
+    }
+
     addBasicMaterial(textureName: string, renderMethod: BlockRenderMethod | undefined = undefined): this {
         const materialData: Record<string, unknown> = {
             "*": {

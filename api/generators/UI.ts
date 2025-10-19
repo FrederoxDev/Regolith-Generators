@@ -828,10 +828,14 @@ export function createMinecraftElement(
         throw new Error("Children must be an array.");
     }
 
-    const flattenedChildren = children.flat();
+    const flattenedChildren = children.flat().filter(c => {
+        return c !== null && c !== undefined && c !== false;
+    })
 
     flattenedChildren.forEach((child, i) => {
         if (!(child instanceof Control)) {
+            if (child === null || child === undefined || child === false) return;
+
             console.error("erroring child", child);
             throw new Error(`Child must be an instance of Control. Child at index ${i} is of type ${typeof child}. ctor: ${child.constructor.name}`);
         }
