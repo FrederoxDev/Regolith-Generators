@@ -14,7 +14,7 @@ export class ServerEntityGenerator extends GeneratorFactory<ServerEntityDef> {
 
 export type EntityProperty = { client_sync?: boolean } & (
     { type: "bool", default: boolean } |
-    { type: "float", default: string, range: [number, number] } |
+    { type: "float", default: string, range: [number | string, number | string] } |
     { type: "int", default: number, range: [number, number] } |
     { type: "enum", default: number, values: string[] }
 )

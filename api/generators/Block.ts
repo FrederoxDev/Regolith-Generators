@@ -1,14 +1,18 @@
 import { GeneratorBase, GeneratorFactory } from "../GeneratorBase.ts";
 import { ItemCategory } from "./Item.ts";
 import { VanillaItemGroup } from "./ItemCatalog.ts";
+import { LangGenerator, ToTitleCase } from "./Lang.ts";
 
 export class BlockGenerator extends GeneratorFactory<BlockDef> {
-    constructor(projectNamespace: string) {
+    langFile: LangGenerator | undefined;
+
+    constructor(projectNamespace: string, langFile: LangGenerator | undefined = undefined) {
         super(projectNamespace, "BP/blocks");
+        this.langFile = langFile;
     }
 
     makeBlock(id: string): BlockDef {
-        const def = new BlockDef(this.projectNamespace, id);
+        const def = new BlockDef(this.projectNamespace, id, this.langFile);
         this.filesToGenerate.set(id, def);
         return def;
     }
@@ -30,12 +34,15 @@ interface PlacementFilterCondition {
 
 export class BlockDef extends GeneratorBase<BlockDef> {
     data: Record<string, unknown>;
+    langFile: LangGenerator | undefined;
 
-    constructor(projectNamespace: string, id: string) {
+    constructor(projectNamespace: string, id: string, langFile: LangGenerator | undefined = undefined) {
         super();
 
+        this.langFile = langFile;
+
         this.data = {
-            "format_version": "1.21.70",
+            "format_version": "1.21.130",
             "minecraft:block": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`,
@@ -45,7 +52,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
                 },
                 "components": {}
             }
-        }
+        };
     }
 
     addState(state: string, value: string[] | number[] | boolean[]): BlockDef {
@@ -63,7 +70,8 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         this.setValueAtPath(enabledStatesPath, enabledStates);
 
         const permutations = this.getValueAtPath<unknown[]>("minecraft:block/permutations", []);
-        const values: [string, number][] = [["east", 90], ["north", 180], ["west", 270]];
+        // const values: [string, number][] = [["east", 270], ["north", 180], ["west", 90]];
+        const values: [string, number][] = [["east", 270], ["south", 180], ["west", 90]];
 
         for (const [state, rotation] of values) {
             const components = new BlockComponents();
@@ -130,6 +138,36 @@ export class BlockDef extends GeneratorBase<BlockDef> {
             this.setValueAtPath("minecraft:block/description/menu_category/group", itemGroup);
         }
         
+        return this;
+    }
+
+    addDefaultLocalization(): this {
+        if (this.langFile === undefined) {
+            throw new Error("No LangGenerator provided to BlockGenerator, cannot add localization.");
+        }
+
+        const id = this.getValueAtPath<string>("minecraft:block/description/identifier", "");
+        if (id === "") {
+            throw new Error("BlockDef has no identifier, cannot add localization.");
+        }
+
+        const name = id.split(":")[1];
+        const titleCaseName = ToTitleCase(name);
+
+        this.langFile.addLine(`tile.${id}.name`, titleCaseName);
+        return this;
+    }
+
+    addLocalization(value: string): this {
+        if (this.langFile === undefined) {
+            throw new Error("No LangGenerator provided to BlockGenerator, cannot add localization.");
+        }
+        const id = this.getValueAtPath<string>("minecraft:block/description/identifier", "");
+        if (id === "") {
+            throw new Error("BlockDef has no identifier, cannot add localization.");
+        }
+
+        this.langFile.addLine(`tile.${id}.name`, value);
         return this;
     }
 }
@@ -200,6 +238,32 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         return this;
     }
 
+    addRandomOffset(xMin: number, xMax: number, yMin: number, yMax: number, zMin: number, zMax: number): this {
+        return this.addComponent("minecraft:random_offset", {
+            "x": {
+                steps: 0,
+                range: {
+                    "min": xMin,
+                    "max": xMax
+                }
+            },
+            "y": {
+                steps: 0,
+                range: {
+                    "min": yMin,
+                    "max": yMax
+                }
+            },
+            "z": {
+                steps: 0,
+                range: {
+                    "min": zMin,
+                    "max": zMax
+                }
+            }
+        });
+    }
+
     addTickComponent(interval: [number, number], looping = true): this {
         return this.addComponent("minecraft:tick", {
             "looping": looping,
@@ -219,9 +283,9 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
     }
 
     addCustomComponent(id: string): this {
-        const components = this.getValueAtPath<string[]>("minecraft:custom_components", []);
-        components.push(id);
-        this.setValueAtPath("minecraft:custom_components", components);
+        const components = this.getValueAtPath<Record<string, unknown>>("minecraft:custom_components", {});
+        components[id] = {};
+        this.setValueAtPath(`${id}`, {});
         return this;
     }
 
@@ -286,7 +350,7 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         });
     }
 
-    addCollsionBox(origin: [number, number, number], size: [number, number, number]): this {
+    addCollisionBox(origin: [number, number, number], size: [number, number, number]): this {
         this.setValueAtPath("minecraft:collision_box", {
             "origin": origin,
             "size": size
@@ -294,11 +358,30 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         return this;
     }
 
-    addSelectionBox(origin: [number, number, number], size: [number, number, number]): this {
+    // addSelectionBox(origin: [number, number, number], size: [number, number, number]): this {
+    //     this.setValueAtPath("minecraft:selection_box", {
+    //         "origin": origin,
+    //         "size": size
+    //     });
+    //     return this;
+    // }
+
+    addSelectionBox(boxes: [[number, number, number], [number, number, number]] /*| [[number, number, number], [number, number, number]][] */): this {
+        // const isMultiple = Array.isArray(boxes[0][0]);
+        
+        // if (isMultiple) {
+        //     this.setValueAtPath("minecraft:selection_box", boxes.map(box => ({
+        //         origin: box[0],
+        //         size: box[1]
+        //     })));
+        // }
+        // else {
         this.setValueAtPath("minecraft:selection_box", {
-            "origin": origin,
-            "size": size
+            origin: boxes[0],
+            size: boxes[1]
         });
+        // }
+
         return this;
     }
 }

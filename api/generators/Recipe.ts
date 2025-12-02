@@ -1,4 +1,23 @@
 import { GeneratorBase, GeneratorFactory } from "../GeneratorBase.ts";
+import { randomId, randomIdFromIdentifier, sanitiseIdentifierForFilename } from "../mod.js";
+
+export type ItemIngredient = {
+    item: string;
+    data?: number;
+    count?: number;
+} | string;
+
+function getIngredientId(ingredient: ItemIngredient): string {
+    if (typeof ingredient === "string") {
+        return ingredient;
+    } else {
+        return ingredient.item;
+    }
+}
+
+function getRecipeId(result: ItemIngredient): string {
+    return randomIdFromIdentifier(sanitiseIdentifierForFilename(getIngredientId(result)));
+}   
 
 export class RecipeGenerator extends GeneratorFactory<ShapedRecipe> {
     data: Record<string, unknown>;
@@ -7,30 +26,27 @@ export class RecipeGenerator extends GeneratorFactory<ShapedRecipe> {
         super(projectNamespace, "BP/recipes");
     }
 
-    makeShapedRecipe(id: string, key: Record<string, ItemIngredient>, pattern: string[], result: ItemIngredient, tags = ["crafting_table"]): ShapedRecipe {
+    makeShapedRecipe(key: Record<string, ItemIngredient>, pattern: string[], result: ItemIngredient, tags = ["crafting_table"]): ShapedRecipe {
+        const id = getRecipeId(result);
         const def = new ShapedRecipe(this.projectNamespace, id, key, pattern, result, tags);
         this.filesToGenerate.set(id, def);
         return def;
     }
 
-    makeShapelessRecipe(id: string, ingredients: ItemIngredient[], result: ItemIngredient, tags = ["crafting_table"]): ShapelessRecipe {
+    makeShapelessRecipe(ingredients: ItemIngredient[], result: ItemIngredient, tags = ["crafting_table"]): ShapelessRecipe {
+        const id = getRecipeId(result);
         const def = new ShapelessRecipe(this.projectNamespace, id, ingredients, result, tags);
         this.filesToGenerate.set(id, def);
         return def;
     }
 
-    makeFurnaceRecipe(id: string, input: ItemIngredient, result: ItemIngredient, tags = ["furnace"]): FurnaceRecipe {
+    makeFurnaceRecipe(input: ItemIngredient, result: ItemIngredient, tags = ["furnace"]): FurnaceRecipe {
+        const id = getRecipeId(result);
         const def = new FurnaceRecipe(this.projectNamespace, id, input, result, tags);
         this.filesToGenerate.set(id, def);
         return def;
     }
 }
-
-export type ItemIngredient = {
-    item: string;
-    data?: number;
-    count?: number;
-} | string;
 
 export class ShapedRecipe extends GeneratorBase<ShapedRecipe> {
     data: Record<string, unknown>;

@@ -127,4 +127,20 @@ export class ItemComponents extends GeneratorBase<ItemComponents> {
         this.setValueAtPath("minecraft:glint", true);
         return this;
     }
+
+    setBlockPlacer(block: string, replaceBlockItem: boolean = false, useOn?: string[]) {
+        if (useOn === undefined) {
+            this.setValueAtPath("minecraft:block_placer", {
+                "block": block,
+                "replace_block_item": replaceBlockItem
+            });
+            return this;
+        }
+        this.setValueAtPath("minecraft:block_placer", {
+            "block": block,
+            "replace_block_item": replaceBlockItem,
+            "use_on": useOn
+        });
+        return this;
+    }
 }

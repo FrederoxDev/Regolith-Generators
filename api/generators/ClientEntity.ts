@@ -95,12 +95,12 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
         return this;
     }
 
-    defineAnimation(animName: string, animId: string): this {
-        if (animName.startsWith("animation.")) {
+    defineAnimation(alias: string, animId: string): this {
+        if (alias.startsWith("animation.")) {
             throw new Error("animName cannot start with animation., you have the parameters backwards");
         }
 
-        this.setValueAtPath(`minecraft:client_entity/description/animations/${animName}`, animId);
+        this.setValueAtPath(`minecraft:client_entity/description/animations/${alias}`, animId);
         return this;
     }
 
@@ -116,6 +116,9 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
      */
     addAnimation(animName: string, condition: string): this;
     addAnimation(animName: string, condition?: string): this {
+        if (animName.startsWith("animation.")) {
+            throw new Error("Use defineAnimation to map animation IDs. animName cannot start with animation.");
+        }
         const animateFields = this.getValueAtPath("minecraft:client_entity/description/scripts/animate", []);
 
         if (condition) {
