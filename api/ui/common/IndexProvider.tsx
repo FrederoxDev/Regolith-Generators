@@ -1,14 +1,15 @@
-import { CollectionPanel, CollectionProps, Control, Size2D, StackPanelProps, Variable, createMinecraftElement } from "../../mod.ts";
+import { CollectionProps, Variable, Size2D, Control, CollectionPanel, createMinecraftElement } from "../../mod.ts";
 
-export interface FormIndexProviderProps extends CollectionProps {
+export interface IndexProviderProps extends CollectionProps {
     $index?: Variable<number>;
     $element_offset?: Size2D;
+    collection_name?: string;
 }
 
 /**
  * A simple CollectionPanel wrapper that adds the children to the "form_buttons" collection and assigns them an index.
  */
-export function FormIndexProvider(props: FormIndexProviderProps & { children?: Control | Control[] }) {
+export function IndexProvider(props: IndexProviderProps & { children?: Control | Control[] }) {
     const children = props.children;
     if (children === undefined) throw new Error("TemplateFormButton: children is required");
 
@@ -29,9 +30,20 @@ export function FormIndexProvider(props: FormIndexProviderProps & { children?: C
         child.data["$offset"] = "$element_offset";
     });
 
-    return <CollectionPanel collection_name="form_buttons" defaults={{
+    return <CollectionPanel collection_name={props.collection_name} defaults={{
         $element_offset: [0, 0],
     }}>
         {childrenArray}
     </CollectionPanel>
+}
+
+/**
+ * A simple CollectionPanel wrapper that adds the children to the "form_buttons" collection and assigns them an index.
+ */
+export function FormIndexProvider(props: IndexProviderProps & { children?: Control | Control[] }) {
+    return <IndexProvider {...props} collection_name="form_buttons" />
+}
+
+export function ChestIndexProvider(props: IndexProviderProps & { children?: Control | Control[] }) {
+    return <IndexProvider {...props} collection_name="container_items" />
 }

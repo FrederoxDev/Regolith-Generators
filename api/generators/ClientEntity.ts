@@ -104,6 +104,16 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
         return this;
     }
 
+    defineParticle(alias: string, particleId: string): this {
+        this.setValueAtPath(`minecraft:client_entity/description/particle_effects/${alias}`, particleId);
+        return this;
+    }
+
+    defineSound(alias: string, soundId: string): this {
+        this.setValueAtPath(`minecraft:client_entity/description/sound_effects/${alias}`, soundId);
+        return this;
+    }
+
     /**
      * Adds an animation that always plays
      * @param animName The name of the animation
@@ -132,6 +142,13 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
 
         this.setValueAtPath("minecraft:client_entity/description/scripts/animate", animateFields);
 
+        return this;
+    }
+
+    addPreAnimation(molang: string[]): this {
+        const newValues = this.getValueAtPath<string[]>("minecraft:client_entity/description/scripts/pre_animation", []);
+        newValues.push(...molang);
+        this.setValueAtPath("minecraft:client_entity/description/scripts/pre_animation", newValues);
         return this;
     }
 }

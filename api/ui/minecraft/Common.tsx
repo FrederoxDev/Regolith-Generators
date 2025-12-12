@@ -41,6 +41,10 @@ export interface CommmonToggleProps extends ToggleProps {
     $toggle_default_state?: boolean,
 }
 
+export interface DialogBackgroundCommonProps extends ImageProps {
+    
+}
+
 /**
  * The `common` namespace in vanilla Minecraft UI.
  */
@@ -60,4 +64,7 @@ export class Common {
     public static InventorySelectedIconButton = GetRef<ButtonProps>("common", "inventory_selected_icon_button");
     public static CellImagePanel = GetRef<PanelProps>("common", "cell_image_panel");
     public static CellImage = GetRef<ImageProps>("common", "cell_image");
+    public static DialogBackgroundCommon = GetRef<DialogBackgroundCommonProps>("common", "dialog_background_common");
+    public static DialogBackgroundHollowCommon = GetRef<DialogBackgroundCommonProps>("common", "dialog_background_hollow_common");
+    public static ItemRenderer = GetRef<PanelProps>("common", "item_renderer");
 }   

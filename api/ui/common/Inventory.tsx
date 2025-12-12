@@ -1,5 +1,6 @@
-import { createMinecraftElement, Panel, Label, Image, Size2D, ImageProps, Variable } from "../../mod.ts";
-import { FormItemSlotProps, FormIndexProviderProps, FormHoverButton, FormItemRenderer, FormIndexProvider, FormHovertext, Hovertext } from "../mod.ts";
+import { createMinecraftElement, Image, Size2D, ImageProps, Variable } from "../../mod.ts";
+import { Hovertext } from "../mod.ts";
+import { IndexProviderProps } from "./IndexProvider.tsx";
 
 export interface StaticItemSlotProps extends ImageProps {
     cellSize?: Size2D;
@@ -11,9 +12,9 @@ export interface StaticItemSlotProps extends ImageProps {
     $hover_layer?: Variable<number>;
 }
 
-export function StaticItemSlot(props: StaticItemSlotProps & FormIndexProviderProps) {
+export function StaticItemSlot(props: StaticItemSlotProps & IndexProviderProps) {
     return (
-        <Image texture={"$cell_image"} size={props.cellSize ?? [20, 20]} anchor_to="top_left" anchor_from="top_left" defaults={{
+        <Image texture="$cell_image" size={props.cellSize ?? [20, 20]} anchor_to="top_left" anchor_from="top_left" defaults={{
             $cell_image: "textures/ui/cell_image",
         }}>
             <Image texture="$item_image" size={props.itemSize ?? [20, 20]} anchor_to="top_left" anchor_from="top_left" />

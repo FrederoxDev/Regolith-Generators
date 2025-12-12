@@ -1,6 +1,6 @@
-import { createMinecraftElement, Common, FormHovertext, FormIndexProvider, Size2D, Variable, FormIndexProviderProps, FormHovertextProps } from "../../mod.ts";
+import { createMinecraftElement, Common, FormHovertext, FormIndexProvider, Size2D, FormHovertextProps, IndexProviderProps } from "../../mod.ts";
 
-export interface FormHoverButtonProps extends FormIndexProviderProps, FormHovertextProps {
+export interface FormHoverButtonProps extends IndexProviderProps, FormHovertextProps {
     $button_size?: Size2D;
     $consume_hover_events?: boolean;
 }
@@ -18,7 +18,7 @@ export function FormHoverButton(_props: FormHoverButtonProps) {
             $button_text_max_size={["100%", 20]}
             $button_text="#null" 
             anchor_from="top_left" anchor_to="top_left" 
-            size={"$button_size"} 
+            size="$button_size"
             bindings={[
                 {
                     binding_type: "collection_details",

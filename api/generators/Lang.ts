@@ -1,6 +1,7 @@
-import { existsSync } from "jsr:@std/fs@1.0.6/exists";
 import { GeneratorBase } from "../GeneratorBase.ts";
-import { createFile, readTextFile } from "../mod.ts";
+import { createFile, randomId } from "../mod.ts";
+import { join } from "jsr:@std/path@1.0.8/join";
+import { ensureDirSync, existsSync } from "jsr:@std/fs@1.0.13";
 
 export class LangGenerator extends GeneratorBase<LangGenerator> {
     data: Record<string, string>;
@@ -10,26 +11,6 @@ export class LangGenerator extends GeneratorBase<LangGenerator> {
         super();
         this.data = {}
         this.path = path;
-
-        if (existsSync(path)) {
-            const existing = LangGenerator.fromFile(path);
-            this.data = existing;
-        }
-    }
-
-    private static fromFile(path: string): Record<string, string> {
-        const content = readTextFile(path);
-        const definitions: Record<string, string> = {};
-        
-        // original is stored as key=value\n
-        const lines = content.split("\n");
-        for (const line of lines) {
-            if (line.startsWith("#") || line.trim() === "") continue; // skip comments and empty lines
-            const [key, ...rest] = line.split("=");
-            definitions[key] = rest.join("=");
-        }
-    
-        return definitions;
     }
 
     public override toJson(): Record<string, unknown> {
@@ -41,6 +22,31 @@ export class LangGenerator extends GeneratorBase<LangGenerator> {
         for (const key in this.data) {
             output += `${key}=${this.data[key]}\n`;
         }
+        createFile(output, `${this.path}.${randomId()}.chunk`);
+    }
+
+    public generateImmediately(): void {
+        let existingContent = "";
+
+        const existingFilePath = join(Deno.cwd(), this.path);
+        console.log(`Generating lang file at ${existingFilePath}`);
+
+        if (existsSync(existingFilePath)) {
+            existingContent = Deno.readTextFileSync(existingFilePath);
+        }
+
+        const entries = existingContent.split("\n");
+        for (const line of entries) {
+            if (line.trim().length === 0) continue;
+            const [key, value] = line.split("=");
+            this.addLine(key, value);
+        }
+
+        let output = "";
+        for (const key in this.data) {
+            output += `${key}=${this.data[key]}\n`;
+        }
+
         createFile(output, this.path);
     }
 

@@ -217,7 +217,12 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         return this;
     }
 
-    addComplexMaterial(textures: Record<string, { textures: string }>): this {
+    addComplexMaterial(textures: Record<string, { 
+        texture: string, 
+        ambient_occlusion?: boolean, 
+        face_dimming?: boolean, 
+        render_method?: BlockRenderMethod | string 
+    }>): this {
        this.setValueAtPath("minecraft:material_instances", textures);
        return this; 
     }
@@ -358,29 +363,11 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         return this;
     }
 
-    // addSelectionBox(origin: [number, number, number], size: [number, number, number]): this {
-    //     this.setValueAtPath("minecraft:selection_box", {
-    //         "origin": origin,
-    //         "size": size
-    //     });
-    //     return this;
-    // }
-
-    addSelectionBox(boxes: [[number, number, number], [number, number, number]] /*| [[number, number, number], [number, number, number]][] */): this {
-        // const isMultiple = Array.isArray(boxes[0][0]);
-        
-        // if (isMultiple) {
-        //     this.setValueAtPath("minecraft:selection_box", boxes.map(box => ({
-        //         origin: box[0],
-        //         size: box[1]
-        //     })));
-        // }
-        // else {
+    addSelectionBox(origin: [number, number, number], size: [number, number, number]): this {
         this.setValueAtPath("minecraft:selection_box", {
-            origin: boxes[0],
-            size: boxes[1]
+            origin: origin,
+            size: size
         });
-        // }
 
         return this;
     }

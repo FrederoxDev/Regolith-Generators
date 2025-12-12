@@ -1,5 +1,5 @@
 import { GeneratorBase, GeneratorFactory } from "../GeneratorBase.ts";
-import { randomId, randomIdFromIdentifier, sanitiseIdentifierForFilename } from "../mod.js";
+import { randomId, randomIdFromIdentifier, sanitiseIdentifierForFilename } from "../mod.ts";
 
 export type ItemIngredient = {
     item: string;
