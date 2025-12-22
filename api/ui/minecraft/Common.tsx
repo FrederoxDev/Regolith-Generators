@@ -1,4 +1,4 @@
-import { ButtonProps, GetRef, ImageProps, InputPanelProps, PanelProps, Size2D, ToggleProps, Variable } from "../../mod.ts";
+import { Anchor, ButtonProps, GetRef, ImageProps, InputPanelProps, PanelProps, Size2D, ToggleProps, Variable } from "../../mod.ts";
 
 export interface CommonButtonProps {
     $pressed_button_name?: string;
@@ -16,6 +16,13 @@ export interface CommonPanelProps {
 export interface CommonScrollingPanelProps {
     $scrolling_content?: string;
     $show_background?: boolean;
+    $scroll_bar_contained?: boolean;
+    $scroll_bar_contained_touch?: boolean;
+    $scrolling_pane_size?: Size2D;
+    $scroll_view_port_size?: Size2D;
+    $scroll_size?: Size2D;
+    $scrolling_content_anchor_from: Anchor;
+    $scrolling_content_anchor_to: Anchor;
 }
 
 export interface CommmonToggleProps extends ToggleProps {
@@ -45,6 +52,10 @@ export interface DialogBackgroundCommonProps extends ImageProps {
     
 }
 
+export interface ItemRendererProps extends PanelProps {
+    $item_collection_name: string;
+}
+
 /**
  * The `common` namespace in vanilla Minecraft UI.
  */
@@ -66,5 +77,5 @@ export class Common {
     public static CellImage = GetRef<ImageProps>("common", "cell_image");
     public static DialogBackgroundCommon = GetRef<DialogBackgroundCommonProps>("common", "dialog_background_common");
     public static DialogBackgroundHollowCommon = GetRef<DialogBackgroundCommonProps>("common", "dialog_background_hollow_common");
-    public static ItemRenderer = GetRef<PanelProps>("common", "item_renderer");
+    public static ItemRenderer = GetRef<ItemRendererProps>("common", "item_renderer");
 }   
