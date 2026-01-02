@@ -1,7 +1,6 @@
-/// <reference lib="deno.ns" />
 import { basename, dirname, extname, join } from "jsr:@std/path@^1.0.8";
 import { existsSync } from "jsr:@std/fs@1.0.6/exists";
-import JSON5 from "npm:json5";
+import JSON5 from "npm:json5@2.2.3";
 export * from "./generators/Block.ts";
 export * from "./generators/ServerEntity.ts";
 export * from "./generators/ClientEntity.ts";
