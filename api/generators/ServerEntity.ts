@@ -118,6 +118,14 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         return this.addComponent("minecraft:cannot_be_attacked", {});
     }
 
+    addHealth(min: number, max: number, value: number): this  {
+        return this.addComponent("minecraft:health", {
+            "min": min,
+            "max": max,
+            "value": value
+        });
+    }
+
     addPhysics(hasCollision: boolean, hasGravity: boolean, pushTowardsClosestSpace: boolean = false): this  {
         return this.addComponent("minecraft:physics", {
             "has_collision": hasCollision,

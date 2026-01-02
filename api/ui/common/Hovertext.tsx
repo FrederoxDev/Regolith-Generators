@@ -7,10 +7,11 @@ import {
     Screen,
     Variable,
     Image,
-    StackPanel
+    StackPanel,
+    ButtonProps
 } from "../../mod.ts";
 
-export interface HovertextProps {
+export interface HovertextProps extends ButtonProps {
     $hover_layer?: Variable<number>;
     $hover_text: Variable<string>;
 }
@@ -20,22 +21,6 @@ export interface HovertextProps {
  */
 export function Hovertext(_props: HovertextProps) {
     return (
-        // <Button hover_control="hover">
-        //     <Custom
-        //         renderer="hover_text_renderer"
-        //         allow_clipping={false}
-        //         layer={"$hover_layer"}
-        //         key="hover"
-        //         defaults={{
-        //             "$hover_layer": 200,
-        //         }}
-        //         property_bag={{
-        //             "#hover_text": "$hover_text",
-        //         }}
-                
-        //     />
-        // </Button>
-            
         <Button hover_control="hover" consume_hover_events={false} allow_clipping={false} >
             <Screen follows_cursor size={[0, 0]} key="hover" layer="$hover_layer" allow_clipping={false} defaults={{
                 "$hover_layer": 0

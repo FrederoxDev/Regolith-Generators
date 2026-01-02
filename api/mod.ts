@@ -1,6 +1,7 @@
 /// <reference lib="deno.ns" />
 import { basename, dirname, extname, join } from "jsr:@std/path@^1.0.8";
 import { existsSync } from "jsr:@std/fs@1.0.6/exists";
+import JSON5 from "npm:json5";
 export * from "./generators/Block.ts";
 export * from "./generators/ServerEntity.ts";
 export * from "./generators/ClientEntity.ts";
@@ -48,7 +49,7 @@ export function createFile(content: string | object, path: string | undefined = 
     Deno.writeTextFileSync(outputPath, output, { create: true });
 }
 
-export function readJsonFile(path: string | undefined = undefined) {
+export function readJsonFile(path: string | undefined = undefined, useJson5: boolean = false) {
     let outputPath = path;
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
 
@@ -66,9 +67,39 @@ export function readJsonFile(path: string | undefined = undefined) {
     if (!existsSync(outputPath))
         throw new Error(`File ${outputPath} does not exist`);
 
-    const file = Deno.readTextFileSync(outputPath);
-    const json = JSON.parse(file);
-    return json;
+    try {
+        if (useJson5) {
+            const file = Deno.readTextFileSync(outputPath);
+            const json = JSON5.parse(file);
+            return json;
+        }
+
+        const file = Deno.readTextFileSync(outputPath);
+        const json = JSON.parse(file);
+        return json;
+    }
+    catch (e) {
+        console.error(`Failed to parse JSON file at ${outputPath}`);
+        throw e;
+    }
+}
+
+export function pathExists(path: string) {
+    let outputPath = path;
+    const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
+
+    if (outputPath === undefined) {
+        const entryPoint = Deno.mainModule.replace("file:///", "");
+        const baseName = basename(entryPoint, extname(entryPoint));
+        const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
+
+        outputPath = join(regolithTmp, relativePath, baseName + ".json");
+    }
+    else {
+        outputPath = join(regolithTmp, outputPath);
+    }
+
+    return existsSync(outputPath);
 }
 
 export function readTextFile(path: string | undefined = undefined) {

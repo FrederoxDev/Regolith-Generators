@@ -75,6 +75,16 @@ export class UiFile extends GeneratorBase<UiFile> {
         this.data = existingData ?? {};
         this.uiNamespace = uiNamespace;
         this.data.namespace = uiNamespace;
+
+        if (existingData !== undefined) {
+            const keys = Object.keys(existingData).filter(key => key !== "namespace" && key !== "$schema");
+            keys.forEach((key) => {
+                const controlData = existingData[key];
+                const control = new Control(undefined, {});
+                control.data = controlData as Record<string, unknown>;
+                this.controls.set(key, control);
+            });
+        }
     }
 
     override toJson(): Record<string, unknown> {
@@ -122,6 +132,19 @@ export class UiFile extends GeneratorBase<UiFile> {
 
         return ControlClass;
     }
+
+    getControl(controlName: string): Control | undefined {
+        return this.controls.get(controlName);
+    }
+
+    getOrCreateControl(controlName: string, defaultControl: Control): Control {
+        let control = this.getControl(controlName);
+        if (control === undefined) {
+            this.controls.set(controlName, defaultControl);
+            control = defaultControl;
+        }
+        return control;
+    }
 }
 
 export class Control extends GeneratorBase<Control> {
@@ -140,11 +163,14 @@ export class Control extends GeneratorBase<Control> {
 
     key?: string;
 
+    no_type: boolean = false;
+
     constructor(base: ControlRef | undefined = undefined, props: GeneratorProps, ...args: any[]) {
         super();
         this.inheritedControl = base;
         this.data = {};
         this.key = props.key;
+        this.no_type = props.no_type ?? false;
 
         if (props.children && props.children.length > 0) {
             props.children.forEach((child) => {
@@ -163,7 +189,7 @@ export class Control extends GeneratorBase<Control> {
         return this;
     }
 
-    protected setType(type: string): this {
+    protected setType(type: string | undefined): this {
         this.data.type = type;
         return this;
     }
@@ -262,6 +288,11 @@ export class Control extends GeneratorBase<Control> {
         if (controls.length > 0) {
             data.controls = controls;
         }
+
+        if (this.no_type) {
+            delete data.type;
+        }
+
 
         return data;
     }
@@ -593,6 +624,11 @@ export interface GeneratorProps {
      * Can be used to set a human-readable name for the control
      */
     key?: string;
+
+    /**
+     * Can be used to disable the type field from being rendered in the final JSON
+     */
+    no_type?: boolean;
 }
 
 // Components

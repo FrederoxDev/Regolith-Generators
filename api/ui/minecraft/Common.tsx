@@ -54,6 +54,12 @@ export interface DialogBackgroundCommonProps extends ImageProps {
 
 export interface ItemRendererProps extends PanelProps {
     $item_collection_name: string;
+    $item_renderer_binding_condition?: "always" | "always_when_visible" | "visible" | "once" | "none" | "visibility_changed";
+}
+
+
+interface ContainerItemProps extends PanelProps {
+    $item_collection_name: string;
 }
 
 /**
@@ -78,4 +84,6 @@ export class Common {
     public static DialogBackgroundCommon = GetRef<DialogBackgroundCommonProps>("common", "dialog_background_common");
     public static DialogBackgroundHollowCommon = GetRef<DialogBackgroundCommonProps>("common", "dialog_background_hollow_common");
     public static ItemRenderer = GetRef<ItemRendererProps>("common", "item_renderer");
+    public static ContainerItem = GetRef<ContainerItemProps>("common", "container_item");
+    public static GridItemForInventory = GetRef<PanelProps>("common", "grid_item_for_inventory");
 }   
