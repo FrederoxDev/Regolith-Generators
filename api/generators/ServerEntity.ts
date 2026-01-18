@@ -88,7 +88,7 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         this.data = {};
     }
 
-    addComponent(id: string, data: Record<string, unknown> | string | number | boolean | Array<unknown>): this  {
+    addComponent(id: string, data: Record<string, unknown> | string | number | boolean | Array<unknown> = {}): this  {
         this.setValueAtPath(id, data);
         return this;
     }
@@ -126,7 +126,7 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
         });
     }
 
-    addPhysics(hasCollision: boolean, hasGravity: boolean, pushTowardsClosestSpace: boolean = false): this  {
+    addPhysics(hasCollision: boolean = true, hasGravity: boolean = true, pushTowardsClosestSpace: boolean = true): this  {
         return this.addComponent("minecraft:physics", {
             "has_collision": hasCollision,
             "has_gravity": hasGravity,

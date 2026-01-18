@@ -44,6 +44,9 @@ export enum EntityMaterials {
     EntityMultitextureMultiplicativeBlend = "entity_multitexture_multiplicative_blend"
 }
 
+type AnimationId = `animation.${string}`;
+type ControllerId = `controller.${string}`;
+
 export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
     data: Record<string, unknown>;
     
@@ -95,8 +98,8 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
         return this;
     }
 
-    defineAnimation(alias: string, animId: string): this {
-        if (alias.startsWith("animation.")) {
+    defineAnimation(alias: string, animId: AnimationId | ControllerId): this {
+        if (alias.startsWith("animation.") || alias.startsWith("controller.")) {
             throw new Error("animName cannot start with animation., you have the parameters backwards");
         }
 

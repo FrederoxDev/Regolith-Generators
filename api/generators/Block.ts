@@ -363,6 +363,11 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
         return this;
     }
 
+    addComplexCollisionBox(boxes: { origin: [number, number, number], size: [number, number, number] }[]): this {
+        this.setValueAtPath("minecraft:collision_box", boxes);
+        return this;
+    }
+
     addSelectionBox(origin: [number, number, number], size: [number, number, number]): this {
         this.setValueAtPath("minecraft:selection_box", {
             origin: origin,
