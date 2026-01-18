@@ -37,7 +37,9 @@ export class LangGenerator extends GeneratorBase<LangGenerator> {
 
         const entries = existingContent.split("\n");
         for (const line of entries) {
-            if (line.trim().length === 0) continue;
+            const trimmed = line.trim()
+            // ignore empty lines and comments
+            if (trimmed.length === 0 || trimmed.startsWith("##")) continue;
             const [key, value] = line.split("=");
             this.addLine(key, value);
         }
