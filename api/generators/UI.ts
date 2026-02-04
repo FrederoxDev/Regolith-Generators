@@ -420,6 +420,7 @@ interface SpriteComponentProps {
     zip_folder?: Variable<string>;
     force_texture_reload?: Variable<boolean>;
     base_size?: Variable<[number, number]>;
+    color?: Variable<[number, number, number]>;
 }
 
 interface LayoutComponentProps {
