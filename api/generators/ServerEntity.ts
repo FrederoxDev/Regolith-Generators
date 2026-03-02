@@ -14,7 +14,7 @@ export class ServerEntityGenerator extends GeneratorFactory<ServerEntityDef> {
 
 export type EntityProperty = { client_sync?: boolean } & (
     { type: "bool", default: boolean } |
-    { type: "float", default: string, range: [number | string, number | string] } |
+    { type: "float", default: number, range: [number | string, number | string] } |
     { type: "int", default: number, range: [number, number] } |
     { type: "enum", default: number, values: string[] }
 )
@@ -75,8 +75,29 @@ export class ServerEntityDef extends GeneratorBase<ServerEntityDef> {
     }
 
     addProperty(propertyID: string, data: EntityProperty): this {
-        this.setValueAtPath(`minecraft:entity/description/properties/${propertyID}`, data);
+        if (data.type === 'float') {
+            const v = data.default;
+            this.setValueAtPath(`minecraft:entity/description/properties/${propertyID}`, {
+                ...data,
+                default: `(${Number.isInteger(v) ? v.toFixed(1) : v})`
+            });
+        } else {
+            this.setValueAtPath(`minecraft:entity/description/properties/${propertyID}`, data);
+        }
         return this;
+    }
+
+    public toString(): string {
+        const json = JSON.stringify(this.data, function(key, value) {
+            const parent = this as Record<string, unknown>;
+            if (key === 'range' && parent?.type === 'float' && Array.isArray(value)) {
+                return (value as number[]).map(v =>
+                    `__FLOAT__${Number.isInteger(v) ? v.toFixed(1) : v}__`
+                );
+            }
+            return value;
+        });
+        return json.replace(/"__FLOAT__([^"]+)__"/g, '$1');
     }
 }
 

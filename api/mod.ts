@@ -13,6 +13,7 @@ export * from "./ui/mod.ts"
 export * from "./generators/Recipe.ts"
 export * from "./Utils.ts"
 export * from "./generators/Lang.ts"
+export * from "./generators/ClientAnimController.ts"
 
 /**
  * Simple wrapper to writing files in the regolith temp directory

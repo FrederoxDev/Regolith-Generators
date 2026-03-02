@@ -55,6 +55,10 @@ export abstract class GeneratorBase<IGenerator extends GeneratorBase<IGenerator>
         return this.data;
     }
 
+    public toString(): string {
+        return JSON.stringify(this.data);
+    }
+
     /**
      * Deep merges the source object into the target object at the specified path.
      */
@@ -89,7 +93,7 @@ export abstract class GeneratorBase<IGenerator extends GeneratorBase<IGenerator>
 
 export abstract class GeneratorFactory<IBase extends GeneratorBase<IBase>> {
     protected filesToGenerate: Map<string, IBase> = new Map();
-    private exportFolder: string;
+    protected exportFolder: string;
     protected projectNamespace: string;
 
     constructor(projectNamespace: string, exportFolder: string) {
@@ -102,7 +106,7 @@ export abstract class GeneratorFactory<IBase extends GeneratorBase<IBase>> {
      */
     public generate() {
         for (const [id, def] of this.filesToGenerate) {
-            createFile(def.toJson(), `${this.exportFolder}/${id}.json`);
+            createFile(def.toString(), `${this.exportFolder}/${id}.json`);
         }
     }
 }
