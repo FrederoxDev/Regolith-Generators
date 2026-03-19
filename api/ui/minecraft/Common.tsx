@@ -1,3 +1,4 @@
+import { ScreenProps } from "../../generators/UI.ts";
 import { Anchor, ButtonProps, GetRef, ImageProps, InputPanelProps, PanelProps, Size2D, ToggleProps, Variable } from "../../mod.ts";
 
 export interface CommonButtonProps {
@@ -62,6 +63,12 @@ interface ContainerItemProps extends PanelProps {
     $item_collection_name: string;
 }
 
+interface BaseScreenProps extends ScreenProps {
+    $screen_content: string;
+    $screen_animations: string[];
+    $use_loading_bars: boolean;
+}
+
 /**
  * The `common` namespace in vanilla Minecraft UI.
  */
@@ -86,4 +93,5 @@ export class Common {
     public static ItemRenderer = GetRef<ItemRendererProps>("common", "item_renderer");
     public static ContainerItem = GetRef<ContainerItemProps>("common", "container_item");
     public static GridItemForInventory = GetRef<PanelProps>("common", "grid_item_for_inventory");
+    public static BaseScreen = GetRef<BaseScreenProps>("common", "base_screen");
 }   
