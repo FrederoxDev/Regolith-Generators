@@ -36,6 +36,9 @@ class ControlRef {
     }
 }
 
+export type ComponentType<TProps extends GeneratorProps = GeneratorProps> =
+    ((props: TProps) => Control) | (new (props: TProps) => Control);
+
 export type UiRef<Props extends GeneratorProps> = {
     new (props: Props): Control;
     controlName: string; 
@@ -904,26 +907,41 @@ export function createMinecraftElement(
         properties.children = flattenedChildren;
     }
     
-    const element = new controlConstructor(properties);
-
-    // Copy any properties that are known JSON-UI properties AND user defined variables.
-    for (const [key, value] of Object.entries(properties ?? {})) {
-        if (key.startsWith("$") || UI_PROPS.includes(key)) {
-            element.data[key] = value;
-        }
-
-        if (key === "anchors") {
-            element.data.anchor_from = value;
-            element.data.anchor_to = value;
-        }
+    // Support three patterns:
+    // 1. Class components (Panel, Button, etc.) — use `new`
+    // 2. Function components (arrow functions) — call directly
+    // 3. Pre-built Control instances — apply props and return
+    let element: Control;
+    if (controlConstructor instanceof Control) {
+        element = controlConstructor;
+    } else if (controlConstructor.prototype) {
+        element = new controlConstructor(properties);
+    } else {
+        element = (controlConstructor as unknown as Function)(properties) as Control;
     }
 
-    // Initialize any default user defined variables. Needed since the syntax for this in JSON-UI uses a |, which is not a valid JS variable name.
-    // Does not bother applying any user defined variables that are already set to a non-default value.
-    if (properties.defaults) {
-        for (const [key, value] of Object.entries(properties.defaults)) {
-            if (element.data[key] !== undefined) continue;
-            element.data[`${key}|default`] = value;
+    // Apply props for class components and pre-built instances.
+    // Function components handle their own props internally.
+    if (!(typeof controlConstructor === "function" && !controlConstructor.prototype)) {
+        // Copy any properties that are known JSON-UI properties AND user defined variables.
+        for (const [key, value] of Object.entries(properties ?? {})) {
+            if (key.startsWith("$") || UI_PROPS.includes(key)) {
+                element.data[key] = value;
+            }
+
+            if (key === "anchors") {
+                element.data.anchor_from = value;
+                element.data.anchor_to = value;
+            }
+        }
+
+        // Initialize any default user defined variables. Needed since the syntax for this in JSON-UI uses a |, which is not a valid JS variable name.
+        // Does not bother applying any user defined variables that are already set to a non-default value.
+        if (properties.defaults) {
+            for (const [key, value] of Object.entries(properties.defaults)) {
+                if (element.data[key] !== undefined) continue;
+                element.data[`${key}|default`] = value;
+            }
         }
     }
 
