@@ -442,10 +442,15 @@ interface LayoutComponentProps {
     follows_cursor?: Variable<boolean>;
 }
 
+interface ModificationValue {
+    requires: string;
+    [key: `$${string}`]: any;
+}
+
 interface Modification {
     operation: "insert_back" | "insert_front" | "insert_after" | "insert_before" | "move_back" | "move_front" | "swap" | "remove" | "replace";
     array_name: string;
-    value: any[];
+    value: ModificationValue[] | ModificationValue;
 }
 
 interface ControlProps {
