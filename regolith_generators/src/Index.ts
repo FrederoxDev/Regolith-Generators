@@ -1,6 +1,7 @@
 import { join } from "jsr:@std/path";
 import { walkSync } from "jsr:@std/fs";
 
+const start = performance.now();
 const ROOT_DIR = Deno.env.get("ROOT_DIR")!;
 
 const DIRECTORIES = [
@@ -9,7 +10,6 @@ const DIRECTORIES = [
     join(Deno.cwd(), "data", "generated"),
 ]
 
-const denoConfigPath = join(ROOT_DIR, "packs", "data", "generated", "deno.json");
 const bpScriptsDir = join(Deno.cwd(), "BP", "scripts");
 const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
 
@@ -27,25 +27,19 @@ async function runScript(filePath: string) {
         return;
     }
 
-    const process = new Deno.Command("deno", {
-        args: ["run", "--config", denoConfigPath, "--unstable-sloppy-imports", "--allow-all", filePath],
-        stdout: "inherit",
-        stdin: "inherit",
-        cwd: join(ROOT_DIR, "packs")
-    }).spawn();
-
-    const status = await process.status;
-
-    if (!status.success) {
-        console.error(`❌ Failed to run: ${filePath}`)
+    try {
+        await import(`file:///${filePath.replaceAll("\\", "/")}`);
+    } catch (e) {
+        console.error(`❌ Failed to run: ${filePath}`, e);
     }
+
+    Deno.remove(filePath);
 }
 
-await Promise.all(tsFiles.map(runScript));
+// Pre-warm shared modules so generators don't each pay the compile cost
+await import("Regolith-Generators");
 
-await Promise.all(tsFiles.map((path) => {
-    Deno.remove(path)
-}));
+await Promise.all(tsFiles.map(runScript));
 
 // Merge lang file chunks into single lang files
 const languageChunksDir = join(regolithTmp, "RP", "texts");
@@ -80,3 +74,6 @@ for (const [langCode, entries] of Object.entries(allLangKeys)) {
     }
     await Deno.writeTextFile(langFilePath, lines.join("\n"));
 }
+
+const end = performance.now();
+console.log(`\x1b[38;2;226;158;80m[Regolith-Generators]\x1b[0m Ran ${tsFiles.length} generators in ${(end - start).toFixed(2)}ms`);

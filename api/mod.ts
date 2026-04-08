@@ -15,6 +15,16 @@ export * from "./Utils.ts"
 export * from "./generators/Lang.ts"
 export * from "./generators/ClientAnimController.ts"
 
+function getCallerFilePath(): string {
+    const stack = new Error().stack ?? "";
+    for (const line of stack.split("\n")) {
+        if (!line.includes("/.regolith/tmp/")) continue;
+        const match = line.match(/file:\/\/\/(.*\.tsx?):\d/i);
+        if (match) return match[1].replaceAll("\\", "/");
+    }
+    return Deno.mainModule.replace("file:///", "");
+}
+
 /**
  * Simple wrapper to writing files in the regolith temp directory
  * @param content What the file contains
@@ -22,7 +32,7 @@ export * from "./generators/ClientAnimController.ts"
  */
 export function createFile(content: string | object, path: string | undefined = undefined) {
     let output: string | undefined = undefined;
-    
+
     if (typeof content === "string") {
         output = content;
     }
@@ -34,7 +44,7 @@ export function createFile(content: string | object, path: string | undefined = 
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
 
     if (outputPath === undefined) {
-        const entryPoint = Deno.mainModule.replace("file:///", "");
+        const entryPoint = getCallerFilePath();
         const baseName = basename(entryPoint, extname(entryPoint));
         const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
 
@@ -54,7 +64,7 @@ export function readJsonFile(path: string | undefined = undefined, useJson5: boo
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
 
     if (outputPath === undefined) {
-        const entryPoint = Deno.mainModule.replace("file:///", "");
+        const entryPoint = getCallerFilePath();
         const baseName = basename(entryPoint, extname(entryPoint));
         const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
 
@@ -89,7 +99,7 @@ export function pathExists(path: string) {
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
 
     if (outputPath === undefined) {
-        const entryPoint = Deno.mainModule.replace("file:///", "");
+        const entryPoint = getCallerFilePath();
         const baseName = basename(entryPoint, extname(entryPoint));
         const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
 
@@ -106,7 +116,7 @@ export function readTextFile(path: string | undefined = undefined) {
     let outputPath = path;
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
     if (outputPath === undefined) {
-        const entryPoint = Deno.mainModule.replace("file:///", "");
+        const entryPoint = getCallerFilePath();
         const baseName = basename(entryPoint, extname(entryPoint));
         const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
         outputPath = join(regolithTmp, relativePath, baseName + ".txt");
