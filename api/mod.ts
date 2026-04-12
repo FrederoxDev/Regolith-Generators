@@ -16,6 +16,25 @@ export * from "./generators/Lang.ts"
 export * from "./generators/ClientAnimController.ts"
 
 /**
+ * Function that returns the regolith temp directory
+ */
+export function getTemporaryDirectory(path?: string) {
+    let outputPath = path;
+    const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
+    if (outputPath === undefined) {
+        const entryPoint = Deno.mainModule.replace("file:///", "");
+        const baseName = basename(entryPoint, extname(entryPoint));
+        const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
+
+        outputPath = join(regolithTmp, relativePath, baseName + ".json");
+    }
+    else {
+        outputPath = join(regolithTmp, outputPath);
+    }
+    return outputPath;
+}
+
+/**
  * Simple wrapper to writing files in the regolith temp directory
  * @param content What the file contains
  * @param path Where to save the file, if left blank it will use the same name as location as the script running it.
@@ -30,20 +49,7 @@ export function createFile(content: string | object, path: string | undefined = 
         output = JSON.stringify(content);
     }
 
-    let outputPath = path;
-    const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
-
-    if (outputPath === undefined) {
-        const entryPoint = Deno.mainModule.replace("file:///", "");
-        const baseName = basename(entryPoint, extname(entryPoint));
-        const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
-
-        outputPath = join(regolithTmp, relativePath, baseName + ".json");
-    }
-    else {
-        outputPath = join(regolithTmp, outputPath);
-    }
-
+    const outputPath = getTemporaryDirectory(path);
     const outputDir = dirname(outputPath);
     Deno.mkdirSync(outputDir, { recursive: true });
     Deno.writeTextFileSync(outputPath, output, { create: true });
