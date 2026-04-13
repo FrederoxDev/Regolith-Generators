@@ -45,7 +45,7 @@ export class ItemDef extends GeneratorBase<ItemDef> {
         this.langFile = langFile;
 
         this.data = {
-            "format_version": "1.21.70",
+            "format_version": "1.26.0",
             "minecraft:item": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`,
@@ -126,10 +126,8 @@ export class ItemComponents extends GeneratorBase<ItemComponents> {
         return this;
     }
 
-    addCustomComponent(id: string): this {
-        const existingComponents = this.getValueAtPath<string[]>("minecraft:custom_components", []);
-        existingComponents.push(id);
-        this.setValueAtPath("minecraft:custom_components", existingComponents);
+    addCustomComponent(id: string, data: Record<string, unknown> | string | number | boolean = {}): this {
+        this.setValueAtPath(id, data);
         return this;
     }
 
