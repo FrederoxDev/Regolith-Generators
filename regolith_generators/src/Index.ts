@@ -65,8 +65,8 @@ for (const entry of walkSync(languageChunksDir, { exts: [".lang", ".chunk"], inc
     for (const line of lines) {
         if (line.startsWith("#") || line.trim() === "") continue;
 
-        const [key, value] = line.split("=");
-        allLangKeys[langCode][key] = value;
+        const [key, ...rest] = line.split("=");
+        allLangKeys[langCode][key] = rest.join("=");
     }
 
     Deno.remove(entry.path);

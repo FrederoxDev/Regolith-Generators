@@ -40,8 +40,8 @@ export class LangGenerator extends GeneratorBase<LangGenerator> {
             const trimmed = line.trim()
             // ignore empty lines and comments
             if (trimmed.length === 0 || trimmed.startsWith("##")) continue;
-            const [key, value] = line.split("=");
-            this.addLine(key, value);
+            const [key, ...rest] = line.split("=");
+            this.addLine(key, rest.join("="));
         }
 
         let output = "";
