@@ -54,7 +54,7 @@ export class ShapedRecipe extends GeneratorBase<ShapedRecipe> {
     constructor(projectNamespace: string, id: string, key: Record<string, ItemIngredient>, pattern: string[], result: ItemIngredient, tags = ["crafting_table"]) {
         super();
         this.data = {
-            "format_version": "1.17",
+            "format_version": "1.20.10",
             "minecraft:recipe_shaped": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`
@@ -74,7 +74,7 @@ export class ShapelessRecipe extends GeneratorBase<ShapelessRecipe> {
     constructor(projectNamespace: string, id: string, ingredients: ItemIngredient[], result: ItemIngredient, tags = ["crafting_table"]) {
         super();
         this.data = {
-            "format_version": "1.17",
+            "format_version": "1.20.10",
             "minecraft:recipe_shapeless": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`
@@ -93,7 +93,7 @@ export class FurnaceRecipe extends GeneratorBase<FurnaceRecipe> {
     constructor(projectNamespace: string, id: string, input: ItemIngredient, result: ItemIngredient, tags = ["furnace"]) {
         super();
         this.data = {
-            "format_version": "1.17",
+            "format_version": "1.20.10",
             "minecraft:recipe_furnace": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`
