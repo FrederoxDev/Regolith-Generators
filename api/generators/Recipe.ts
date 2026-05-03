@@ -62,6 +62,7 @@ export class ShapedRecipe extends GeneratorBase<ShapedRecipe> {
                 "tags": tags,
                 "pattern": pattern,
                 "key": key,
+                "unlock": { "context": "AlwaysUnlocked" },
                 "result": result
             }
         };
@@ -81,6 +82,7 @@ export class ShapelessRecipe extends GeneratorBase<ShapelessRecipe> {
                 },
                 "tags": tags,
                 "ingredients": ingredients,
+                "unlock": { "context": "AlwaysUnlocked" },
                 "result": result
             }
         };
