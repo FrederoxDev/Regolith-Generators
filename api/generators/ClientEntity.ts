@@ -1,4 +1,5 @@
 import { GeneratorFactory, GeneratorBase } from "../GeneratorBase.ts";
+import { createFile } from "../mod.ts";
 
 export class ClientEntityGenerator extends GeneratorFactory<ClientEntityDef> {
     constructor(projectNamespace: string) {
@@ -9,6 +10,12 @@ export class ClientEntityGenerator extends GeneratorFactory<ClientEntityDef> {
         const def = new ClientEntityDef(this.projectNamespace, id);
         this.filesToGenerate.set(id, def);
         return def;
+    }
+
+    public generate() {
+        for (const [id, def] of this.filesToGenerate) {
+            createFile(def.toString(), `${this.exportFolder}/${id}.entity.json`);
+        }
     }
 }
 
