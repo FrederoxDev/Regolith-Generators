@@ -7,10 +7,10 @@
             }
         }
     },
-    "version": "1.2.7",
+    "version": "1.2.8",
     "license": "MIT",
     "exports": "./api/mod.ts",
     "tasks": {
-        "publish": "npx jsr publish --no-check --allow-slow-types --allow-dirty"
+        "publish": "npx jsr publish --allow-slow-types --allow-dirty"
     }
 }
