@@ -1,5 +1,4 @@
 import { GeneratorBase, GeneratorFactory } from "../GeneratorBase.ts";
-import { randomId } from "../Utils.ts";
 import { createFile } from "../mod.ts";
 
 type MolangExpression = string;
@@ -50,8 +49,11 @@ export class ClientAnimationControllerGenerator extends GeneratorFactory<ClientA
         return def;
     }
 
-    public generate(): void {
-        const data = {
+    public override generate(): void {
+        const data: {
+            "format_version": string;
+            "animation_controllers": Record<string, unknown>;
+        } = {
             "format_version": "1.10.0",
             "animation_controllers": {}
         };

@@ -446,8 +446,8 @@ interface LayoutComponentProps {
 }
 
 interface ModificationValue {
-    requires: string;
-    [key: `$${string}`]: any;
+    requires?: string;
+    [key: string]: unknown;
 }
 
 interface Modification {

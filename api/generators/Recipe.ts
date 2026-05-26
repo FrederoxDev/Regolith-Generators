@@ -20,7 +20,7 @@ function getRecipeId(result: ItemIngredient): string {
 }   
 
 export class RecipeGenerator extends GeneratorFactory<ShapedRecipe> {
-    data: Record<string, unknown>;
+    data: Record<string, unknown> = {};
 
     constructor(projectNamespace: string) {
         super(projectNamespace, "BP/recipes");

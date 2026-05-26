@@ -87,7 +87,7 @@ export class ServerEntityDef extends GeneratorBase<ServerEntityDef> {
         return this;
     }
 
-    public toString(): string {
+    public override toString(): string {
         const json = JSON.stringify(this.data, function(key, value) {
             const parent = this as Record<string, unknown>;
             if (key === 'range' && parent?.type === 'float' && Array.isArray(value)) {

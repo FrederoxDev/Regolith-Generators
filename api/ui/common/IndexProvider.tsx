@@ -6,6 +6,8 @@ export interface IndexProviderProps extends CollectionProps {
     collection_name?: string;
 }
 
+export type FormIndexProviderProps = IndexProviderProps;
+
 /**
  * A simple CollectionPanel wrapper that adds the children to the "form_buttons" collection and assigns them an index.
  */

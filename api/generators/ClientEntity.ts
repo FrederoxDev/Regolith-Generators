@@ -12,7 +12,7 @@ export class ClientEntityGenerator extends GeneratorFactory<ClientEntityDef> {
         return def;
     }
 
-    public generate() {
+    public override generate(): void {
         for (const [id, def] of this.filesToGenerate) {
             createFile(def.toString(), `${this.exportFolder}/${id}.entity.json`);
         }
@@ -78,7 +78,7 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
     }
 
     addTexture(texturePath: string, as = "default"): this {
-        const existing = this.getValueAtPath("minecraft:client_entity/description/textures", {});
+        const existing = this.getValueAtPath<Record<string, string>>("minecraft:client_entity/description/textures", {});
         existing[as] = texturePath;
         this.setValueAtPath("minecraft:client_entity/description/textures", existing);
         return this;
@@ -139,7 +139,7 @@ export class ClientEntityDef extends GeneratorBase<ClientEntityDef> {
         if (animName.startsWith("animation.")) {
             throw new Error("Use defineAnimation to map animation IDs. animName cannot start with animation.");
         }
-        const animateFields = this.getValueAtPath("minecraft:client_entity/description/scripts/animate", []);
+        const animateFields = this.getValueAtPath<Array<string | Record<string, string>>>("minecraft:client_entity/description/scripts/animate", []);
 
         if (condition) {
             animateFields.push({
