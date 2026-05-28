@@ -500,15 +500,14 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
     }
 
     /**
-     * Adds a block tag as a `tag:<namespace:tag_name>` marker component.
-     *
-     * The current Microsoft block tag page documents block tags as empty
-     * `tag:` components rather than the item-style `minecraft:tags` object.
+     * Adds a block tag to the `minecraft:tags` component's `tags` array.
      *
      * @see https://learn.microsoft.com/minecraft/creator/reference/content/blockreference/examples/blockcomponents/minecraftblock_tag
      */
     addTag(id: string): this {
-        this.setValueAtPath(`tag:${id}`, {});
+        const tags = this.getValueAtPath<string[]>("minecraft:tags", []);
+        if (!tags.includes(id)) tags.push(id);
+        this.setValueAtPath("minecraft:tags", tags);
         return this;
     }
 
