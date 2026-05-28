@@ -3,10 +3,12 @@
         "jsx": "react",
         "jsxFactory": "createMinecraftElement",
         "jsxFragmentFactory": "createMinecraftFragment",
-        // "allowImportingTsExtensions": true,
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
         "lib": [
             "ESNext",
-            "DOM"
+            "DOM",
+            "deno.ns"
         ]
     },
     "include": [

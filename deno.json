@@ -11,6 +11,7 @@
     "license": "MIT",
     "exports": "./api/mod.ts",
     "tasks": {
+        "check:jsr": "npx jsr publish --dry-run",
         "publish": "npx jsr publish --allow-slow-types --allow-dirty"
     }
 }

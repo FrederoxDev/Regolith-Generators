@@ -7,16 +7,16 @@ const DIRECTORIES = [
     join(Deno.cwd(), "BP"),
     join(Deno.cwd(), "RP"),
     join(Deno.cwd(), "data", "generated"),
-]
+];
 
 const denoConfigPath = join(ROOT_DIR, "packs", "data", "generated", "deno.json");
-const bpScriptsDir = join(Deno.cwd(), "BP", "scripts");
+const bpScriptsDirPattern = /[\\/]BP[\\/]scripts(?:[\\/]|$)/;
 const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
 
 const tsFiles: string[] = [];
 
 for (const dir of DIRECTORIES) {
-    for (const entry of walkSync(dir, { exts: [".ts", ".tsx"], includeFiles: true, skip: [bpScriptsDir] })) {
+    for (const entry of walkSync(dir, { exts: [".ts", ".tsx"], includeFiles: true, skip: [bpScriptsDirPattern] })) {
         tsFiles.push(entry.path);
     }
 }
@@ -31,7 +31,7 @@ async function runScript(filePath: string) {
         args: ["run", "--config", denoConfigPath, "--unstable-sloppy-imports", "--allow-all", filePath],
         stdout: "inherit",
         stdin: "inherit",
-        cwd: join(ROOT_DIR, "packs")
+        cwd: join(ROOT_DIR, "packs"),
     }).spawn();
 
     const status = await process.status;

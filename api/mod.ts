@@ -2,10 +2,14 @@ import { basename, dirname, extname, join } from "jsr:@std/path@^1.0.8";
 import { existsSync } from "jsr:@std/fs@1.0.6/exists";
 import JSON5 from "npm:json5@2.2.3";
 export * from "./generators/Block.ts";
+export * from "./generators/BlockComponentTypes.ts";
 export * from "./generators/ServerEntity.ts";
+export * from "./generators/EntityComponentTypes.ts";
 export * from "./generators/ClientEntity.ts";
+export * from "./generators/ClientEntityTypes.ts";
 export * from "./generators/SoundDefinitions.ts";
 export * from "./generators/Item.ts";
+export * from "./generators/ItemComponentTypes.ts";
 export * from "./generators/ItemCatalog.ts";
 export * from "./common/OreSet.ts";
 export * from "./generators/UI.ts"
@@ -18,7 +22,7 @@ export * from "./generators/ClientAnimController.ts"
 /**
  * Function that returns the regolith temp directory
  */
-export function getTemporaryDirectory(path?: string) {
+export function getTemporaryDirectory(path?: string): string {
     let outputPath = path;
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
     if (outputPath === undefined) {
@@ -39,7 +43,7 @@ export function getTemporaryDirectory(path?: string) {
  * @param content What the file contains
  * @param path Where to save the file, if left blank it will use the same name as location as the script running it.
  */
-export function createFile(content: string | object, path: string | undefined = undefined) {
+export function createFile(content: string | object, path: string | undefined = undefined): void {
     let output: string | undefined = undefined;
     
     if (typeof content === "string") {
@@ -55,7 +59,7 @@ export function createFile(content: string | object, path: string | undefined = 
     Deno.writeTextFileSync(outputPath, output, { create: true });
 }
 
-export function readJsonFile(path: string | undefined = undefined, useJson5: boolean = false) {
+export function readJsonFile(path: string | undefined = undefined, useJson5: boolean = false): any {
     let outputPath = path;
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
 
@@ -90,7 +94,7 @@ export function readJsonFile(path: string | undefined = undefined, useJson5: boo
     }
 }
 
-export function pathExists(path: string) {
+export function pathExists(path: string): boolean {
     let outputPath = path;
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
 
@@ -108,7 +112,7 @@ export function pathExists(path: string) {
     return existsSync(outputPath);
 }
 
-export function readTextFile(path: string | undefined = undefined) {
+export function readTextFile(path: string | undefined = undefined): string {
     let outputPath = path;
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
     if (outputPath === undefined) {
