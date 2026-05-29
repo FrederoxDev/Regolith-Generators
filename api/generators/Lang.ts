@@ -1,5 +1,6 @@
 import { GeneratorBase } from "../GeneratorBase.ts";
-import { createFile, randomId } from "../mod.ts";
+import { createFile } from "../FileIO.ts";
+import { randomId } from "../Utils.ts";
 import { join } from "jsr:@std/path@1.0.8/join";
 import { ensureDirSync, existsSync } from "jsr:@std/fs@1.0.13";
 

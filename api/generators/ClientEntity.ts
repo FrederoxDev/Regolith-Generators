@@ -1,5 +1,5 @@
 import { GeneratorFactory, GeneratorBase } from "../GeneratorBase.ts";
-import { createFile } from "../mod.ts";
+import { createFile } from "../FileIO.ts";
 import {
     type ClientEntityAnimateEntry,
     type ClientEntityAnimationControllerId,

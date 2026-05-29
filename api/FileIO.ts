@@ -1,58 +1,9 @@
 import { basename, dirname, extname, join } from "jsr:@std/path@^1.0.8";
 import { existsSync } from "jsr:@std/fs@1.0.6/exists";
 import JSON5 from "npm:json5@2.2.3";
-export * from "./generators/Block.ts";
-export * from "./generators/BlockComponentTypes.ts";
-export * from "./generators/ServerEntity.ts";
-export * from "./generators/EntityComponentTypes.ts";
-export * from "./generators/ClientEntity.ts";
-export * from "./generators/ClientEntityTypes.ts";
-export * from "./generators/SoundDefinitions.ts";
-export * from "./generators/Item.ts";
-export * from "./generators/ItemComponentTypes.ts";
-export * from "./generators/ItemCatalog.ts";
-export * from "./common/OreSet.ts";
-export * from "./generators/UI.ts"
-export * from "./ui/mod.ts"
-export * from "./generators/Recipe.ts"
-export * from "./generators/RecipeTypes.ts"
-export * from "./generators/LootTable.ts"
-export * from "./generators/LootTableTypes.ts"
-export * from "./generators/TradeTable.ts"
-export * from "./generators/TradeTableTypes.ts"
-export * from "./generators/SpawnRule.ts"
-export * from "./generators/SpawnRuleTypes.ts"
-export * from "./generators/Feature.ts"
-export * from "./generators/FeatureRule.ts"
-export * from "./generators/FeatureTypes.ts"
-export * from "./generators/Biome.ts"
-export * from "./generators/BiomeTypes.ts"
-export * from "./generators/ClientBiome.ts"
-export * from "./generators/ClientBiomeTypes.ts"
-export * from "./generators/Fog.ts"
-export * from "./generators/FogTypes.ts"
-export * from "./generators/VibrantVisuals.ts"
-export * from "./generators/VibrantVisualsTypes.ts"
-export * from "./generators/Particle.ts"
-export * from "./generators/ParticleTypes.ts"
-export * from "./generators/Attachable.ts"
-export * from "./generators/AttachableTypes.ts"
-export * from "./generators/Animation.ts"
-export * from "./generators/AnimationTypes.ts"
-export * from "./generators/AnimationController.ts"
-export * from "./generators/AnimationControllerTypes.ts"
-export * from "./generators/RenderController.ts"
-export * from "./generators/RenderControllerTypes.ts"
-export * from "./generators/TextureSet.ts"
-export * from "./generators/TextureSetTypes.ts"
-export * from "./generators/BlockCulling.ts"
-export * from "./generators/BlockCullingTypes.ts"
-export * from "./Utils.ts"
-export * from "./generators/Lang.ts"
-export * from "./generators/ClientAnimController.ts"
 
 /**
- * Function that returns the regolith temp directory
+ * Function that returns the regolith temp directory.
  */
 export function getTemporaryDirectory(path?: string): string {
     let outputPath = path;
@@ -63,25 +14,25 @@ export function getTemporaryDirectory(path?: string): string {
         const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
 
         outputPath = join(regolithTmp, relativePath, baseName + ".json");
-    }
-    else {
+    } else {
         outputPath = join(regolithTmp, outputPath);
     }
     return outputPath;
 }
 
 /**
- * Simple wrapper to writing files in the regolith temp directory
- * @param content What the file contains
- * @param path Where to save the file, if left blank it will use the same name as location as the script running it.
+ * Simple wrapper to writing files in the regolith temp directory.
+ *
+ * @param content What the file contains.
+ * @param path Where to save the file. If left blank, it uses the same name and
+ * location as the running script.
  */
 export function createFile(content: string | object, path: string | undefined = undefined): void {
     let output: string | undefined = undefined;
 
     if (typeof content === "string") {
         output = content;
-    }
-    else {
+    } else {
         output = JSON.stringify(content);
     }
 
@@ -101,13 +52,13 @@ export function readJsonFile(path: string | undefined = undefined, useJson5: boo
         const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
 
         outputPath = join(regolithTmp, relativePath, baseName + ".json");
-    }
-    else {
+    } else {
         outputPath = join(regolithTmp, outputPath);
     }
 
-    if (!existsSync(outputPath))
+    if (!existsSync(outputPath)) {
         throw new Error(`File ${outputPath} does not exist`);
+    }
 
     try {
         if (useJson5) {
@@ -119,8 +70,7 @@ export function readJsonFile(path: string | undefined = undefined, useJson5: boo
         const file = Deno.readTextFileSync(outputPath);
         const json = JSON.parse(file);
         return json;
-    }
-    catch (e) {
+    } catch (e) {
         console.error(`Failed to parse JSON file at ${outputPath}`);
         throw e;
     }
@@ -136,8 +86,7 @@ export function pathExists(path: string): boolean {
         const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
 
         outputPath = join(regolithTmp, relativePath, baseName + ".json");
-    }
-    else {
+    } else {
         outputPath = join(regolithTmp, outputPath);
     }
 
@@ -152,12 +101,12 @@ export function readTextFile(path: string | undefined = undefined): string {
         const baseName = basename(entryPoint, extname(entryPoint));
         const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
         outputPath = join(regolithTmp, relativePath, baseName + ".txt");
-    }
-    else {
+    } else {
         outputPath = join(regolithTmp, outputPath);
     }
-    if (!existsSync(outputPath))
+    if (!existsSync(outputPath)) {
         throw new Error(`File ${outputPath} does not exist`);
+    }
 
     const file = Deno.readTextFileSync(outputPath);
     return file;

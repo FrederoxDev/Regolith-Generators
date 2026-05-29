@@ -2526,6 +2526,19 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
     }
 
     /**
+     * Defines this entity's current villager-style economy trade table path.
+     *
+     * The table path is relative to the pack root, for example
+     * `trading/economy_trades/butcher_trades.json`.
+     *
+     * @see https://learn.microsoft.com/minecraft/creator/documents/createtradetable
+     * @see https://learn.microsoft.com/minecraft/creator/reference/content/entityreference/examples/entitycomponents/minecraftcomponent_economy_trade_table
+     */
+    addEconomyTradeTablePath(table: string, data: Record<string, unknown> = {}): this {
+        return this.addEconomyTradeTable({ ...data, table });
+    }
+
+    /**
      * It defines to which armor slot an item equipped to 'minecraft:equippable''s second slot should be equipped to. It is automatically applied to all entities for worlds with a version greater than or equal to 1.21.10. For older worlds, 'slot.armor.torso' will be used. It is strongly advised not to explicitly use this component, as no backwards compatibility for it will be provided.
      *
      * @see https://learn.microsoft.com/minecraft/creator/reference/content/entityreference/examples/entitycomponents/minecraftcomponent_entity_armor_equipment_slot_mapping
@@ -3873,6 +3886,20 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
      */
     addTradeTable(data: EntityComponentData = {}): this {
         return this.addComponent("minecraft:trade_table", data);
+    }
+
+    /**
+     * Defines this entity's legacy trade table path.
+     *
+     * Prefer `addEconomyTradeTablePath` for new villager-style trading content.
+     * The table path is relative to the pack root, for example
+     * `trading/farmer_trades.json`.
+     *
+     * @see https://learn.microsoft.com/minecraft/creator/documents/createtradetable
+     * @see https://learn.microsoft.com/minecraft/creator/reference/content/entityreference/examples/entitycomponents/minecraftcomponent_trade_table
+     */
+    addTradeTablePath(table: string, data: Record<string, unknown> = {}): this {
+        return this.addTradeTable({ ...data, table });
     }
 
     /**

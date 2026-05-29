@@ -1,4 +1,4 @@
-import { createFile } from "./mod.ts";
+import { createFile } from "./FileIO.ts";
 
 export abstract class GeneratorBase<IGenerator extends GeneratorBase<IGenerator>> {
     /**
