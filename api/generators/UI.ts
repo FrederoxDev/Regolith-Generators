@@ -327,10 +327,10 @@ interface AnimationComponentProps {
     wait_until_rendered_to_play?: Variable<boolean>;
 }
 
-interface Factory {
+interface FactoryConfig {
     /**
      * Map of control names to instances of controls.
-     * 
+     *
      * @example
      * "control_ids": {
 		        "test": "@server_form.list_filter_0"
@@ -478,7 +478,7 @@ interface ControlProps {
     modifications?: Variable<Modification[]>;
     grid_position?: Variable<Size2D>;
     collection_index?: Variable<number>;
-    factory?: Factory;
+    factory?: FactoryConfig;
 }
 
 interface LabelComponentProps {
@@ -757,6 +757,17 @@ function ButtonComponent<TBase extends Constructor<Control>>(Base: TBase) {
 }
 
 // Element type props
+interface FactoryComponentProps {
+    name?: Variable<string>;
+    control_ids?: Record<string, string>;
+    control_name?: Variable<string>;
+    factory_variables?: Variable<any>;
+    insert_location?: Variable<any>;
+    max_children_size?: Variable<number>;
+    max_size?: Variable<number>;
+}
+
+export interface FactoryProps extends FactoryComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
 export interface PanelProps extends LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
 export interface ImageProps extends SpriteComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
 export interface LabelProps extends LabelComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
@@ -764,7 +775,7 @@ export interface CustomProps extends CustomRendererComponentProps, LayoutCompone
 export interface StackPanelProps extends StackPanelComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, CollectionComponentProps, GeneratorProps {};
 export interface CollectionProps extends CollectionComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
 export interface InputPanelProps extends InputComponentProps, FocusComponentProps, SoundComponentProps, ControlProps, LayoutComponentProps, DataBindingProps, GeneratorProps {};
-export interface ScreenProps extends ScreenComponentProps, ControlProps, LayoutComponentProps, DataBindingProps, GeneratorProps {};
+export interface ScreenProps extends ScreenComponentProps, InputComponentProps, FocusComponentProps, SoundComponentProps, ControlProps, LayoutComponentProps, DataBindingProps, GeneratorProps {};
 export interface ToggleProps extends ToggleComponentProps, InputComponentProps, FocusComponentProps, SoundComponentProps, ControlProps, LayoutComponentProps, DataBindingProps, GeneratorProps {};
 export interface AnimationProps extends AnimationComponentProps, GeneratorProps {}
 export interface ButtonProps extends ButtonComponentProps, InputComponentProps, FocusComponentProps, SoundComponentProps, ControlProps, LayoutComponentProps, DataBindingProps, GeneratorProps {};
@@ -788,7 +799,14 @@ export class Panel extends LayoutComponent(Control) {
     constructor(props: PanelProps) {
         super(undefined, props);
         this.setType("panel");
-    }    
+    }
+}
+
+export class Factory extends DataBindingComponent(Control) {
+    constructor(props: FactoryProps) {
+        super(undefined, props);
+        this.setType("factory");
+    }
 }
 
 export class Custom extends CustomRendererComponent(DataBindingComponent(LayoutComponent(Control))) {
@@ -826,7 +844,7 @@ export class InputPanel extends InputComponent(DataBindingComponent(FocusCompone
     }
 }
 
-export class Screen extends ScreenComponent(DataBindingComponent(FocusComponent(LayoutComponent(Control)))) {
+export class Screen extends ScreenComponent(InputComponent(SoundComponent(DataBindingComponent(FocusComponent(LayoutComponent(Control)))))) {
     constructor(props: ScreenProps) {
         super(undefined, props);
         this.setType("screen");
