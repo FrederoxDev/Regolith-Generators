@@ -31,6 +31,13 @@ export type BlockFace = "all" | "side" | BlockDirection;
 export type BlockChestObstructionRule = "always" | "never" | "shape";
 
 /**
+ * Back-compatible input accepted by the generator helper.
+ *
+ * `false` maps to `never` and `true` maps to `shape`.
+ */
+export type BlockChestObstructionInput = BlockChestObstructionRule | boolean;
+
+/**
  * Connection types accepted by `minecraft:connection_rule`.
  */
 export type BlockConnectionType = "all" | "only_fences" | "none";

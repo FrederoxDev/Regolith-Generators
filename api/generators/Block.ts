@@ -1,7 +1,7 @@
 import { GeneratorBase, GeneratorFactory } from "../GeneratorBase.ts";
 import {
     type BlockBoneVisibility,
-    type BlockChestObstructionRule,
+    type BlockChestObstructionInput,
     type BlockCollisionBox,
     type BlockConnectionTrait,
     type BlockConnectionType,
@@ -39,6 +39,7 @@ import { LangGenerator, ToTitleCase } from "./Lang.ts";
 export { BlockRenderMethod } from "./BlockComponentTypes.ts";
 export type {
     BlockBoneVisibility,
+    BlockChestObstructionInput,
     BlockChestObstructionRule,
     BlockCollisionBox,
     BlockConnectionTrait,
@@ -541,9 +542,13 @@ export class BlockComponents extends GeneratorBase<BlockComponents> {
      *
      * @see https://learn.microsoft.com/minecraft/creator/reference/content/blockreference/examples/blockcomponents/minecraftblock_chest_obstruction
      */
-    addChestObstruction(obstructionRule: BlockChestObstructionRule = "shape"): this {
+    addChestObstruction(obstructionRule: BlockChestObstructionInput = "shape"): this {
+        const rule = typeof obstructionRule === "boolean"
+            ? obstructionRule ? "shape" : "never"
+            : obstructionRule;
+
         return this.addComponent("minecraft:chest_obstruction", {
-            obstruction_rule: obstructionRule,
+            obstruction_rule: rule,
         });
     }
 
