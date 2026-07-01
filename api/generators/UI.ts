@@ -450,11 +450,47 @@ interface ModificationValue {
     [key: string]: unknown;
 }
 
-interface Modification {
-    operation: "insert_back" | "insert_front" | "insert_after" | "insert_before" | "move_back" | "move_front" | "swap" | "remove" | "replace";
-    array_name: string;
-    value: ModificationValue[] | ModificationValue | string | string[];
-}
+type ModificationWhere = Record<string, unknown>;
+type ModificationControlValue = ModificationValue[] | ModificationValue | string | string[];
+
+type Modification =
+    | {
+        operation: "insert_back" | "insert_front";
+        array_name: "bindings" | "controls" | string;
+        value: ModificationControlValue;
+    }
+    | {
+        operation: "remove" | "move_back" | "move_front";
+        control_name: string;
+    }
+    | {
+        operation: "insert_after" | "insert_before" | "move_after" | "move_before" | "replace" | "swap";
+        control_name: string;
+        value: ModificationControlValue;
+    }
+    | {
+        operation: "remove" | "move_back" | "move_front";
+        array_name: "bindings" | "controls" | string;
+        where: ModificationWhere;
+    }
+    | {
+        operation: "insert_after" | "insert_before";
+        array_name: "bindings" | "controls" | string;
+        where: ModificationWhere;
+        value: ModificationControlValue;
+    }
+    | {
+        operation: "move_after" | "move_before" | "swap";
+        array_name: "bindings" | "controls" | string;
+        where: ModificationWhere;
+        target: ModificationWhere;
+    }
+    | {
+        operation: "replace";
+        array_name: "bindings" | "controls" | string;
+        where: ModificationWhere;
+        value: ModificationControlValue;
+    };
 
 interface ControlProps {
     visible?: Variable<boolean>;
