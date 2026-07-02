@@ -28,7 +28,7 @@ async function runScript(filePath: string) {
     }
 
     const process = new Deno.Command("deno", {
-        args: ["run", "--config", denoConfigPath, "--unstable-sloppy-imports", "--allow-all", filePath],
+        args: ["run", "--cached-only", "--config", denoConfigPath, "--unstable-sloppy-imports", "--allow-all", filePath],
         stdout: "inherit",
         stdin: "inherit",
         cwd: join(ROOT_DIR, "packs"),
@@ -37,7 +37,7 @@ async function runScript(filePath: string) {
     const status = await process.status;
 
     if (!status.success) {
-        console.error(`❌ Failed to run: ${filePath}`)
+        throw new Error(`Failed to run generator script from cache: ${filePath}`);
     }
 }
 
