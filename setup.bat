@@ -1,3 +1,3 @@
 @echo off
 cd %~dp0
-npm i
+call npm i
