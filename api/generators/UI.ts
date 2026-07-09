@@ -549,6 +549,16 @@ interface CollectionComponentProps {
     collection_name?: Variable<string>;
 }
 
+interface GridComponentProps extends CollectionComponentProps {
+    grid_dimensions?: Variable<Size2D>;
+    maximum_grid_items?: Variable<number>;
+    grid_dimension_binding?: Variable<string>;
+    grid_rescaling_type?: Variable<"horizontal" | "vertical">;
+    grid_fill_direction?: Variable<"horizontal" | "vertical">;
+    precached_grid_item_count?: Variable<number>;
+    grid_item_template?: Variable<string>;
+}
+
 
 interface InputComponentProps {
     button_mappings?: Variable<any>;
@@ -805,6 +815,7 @@ interface FactoryComponentProps {
 
 export interface FactoryProps extends FactoryComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
 export interface PanelProps extends LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
+export interface GridProps extends GridComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
 export interface ImageProps extends SpriteComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
 export interface LabelProps extends LabelComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
 export interface CustomProps extends CustomRendererComponentProps, LayoutComponentProps, ControlProps, DataBindingProps, GeneratorProps {};
@@ -835,6 +846,13 @@ export class Panel extends LayoutComponent(Control) {
     constructor(props: PanelProps) {
         super(undefined, props);
         this.setType("panel");
+    }
+}
+
+export class Grid extends DataBindingComponent(LayoutComponent(Control)) {
+    constructor(props: GridProps) {
+        super(undefined, props);
+        this.setType("grid");
     }
 }
 
