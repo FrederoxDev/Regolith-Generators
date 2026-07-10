@@ -37,7 +37,7 @@ async function runScript(filePath: string) {
     const status = await process.status;
 
     if (!status.success) {
-        throw new Error(`Failed to run generator script from cache: ${filePath}`);
+        console.error(`Failed to run generator script from cache: ${filePath}`);
     }
 }
 
