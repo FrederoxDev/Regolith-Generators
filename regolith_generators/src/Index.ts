@@ -1,82 +1,91 @@
-import { join } from "jsr:@std/path";
-import { walkSync } from "jsr:@std/fs";
+import { readdirSync } from "node:fs";
+import { readFile, rm, writeFile } from "node:fs/promises";
+import { basename, dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT_DIR = Deno.env.get("ROOT_DIR")!;
+const ROOT_DIR = process.env.ROOT_DIR;
+if (!ROOT_DIR) throw new Error("Regolith did not provide ROOT_DIR.");
 
 const DIRECTORIES = [
-    join(Deno.cwd(), "BP"),
-    join(Deno.cwd(), "RP"),
-    join(Deno.cwd(), "data", "generated"),
+    join(process.cwd(), "BP"),
+    join(process.cwd(), "RP"),
+    join(process.cwd(), "data", "generated"),
 ];
 
 const denoConfigPath = join(ROOT_DIR, "packs", "data", "generated", "deno.json");
-const bpScriptsDirPattern = /[\\/]BP[\\/]scripts(?:[\\/]|$)/;
-const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
+const runnerPath = join(dirname(fileURLToPath(import.meta.url)), "Runner.ts");
+const bpScriptsDirectory = join(process.cwd(), "BP", "scripts").toLowerCase();
 
-const tsFiles: string[] = [];
-
-for (const dir of DIRECTORIES) {
-    for (const entry of walkSync(dir, { exts: [".ts", ".tsx"], includeFiles: true, skip: [bpScriptsDirPattern] })) {
-        tsFiles.push(entry.path);
-    }
+function collectGeneratorFiles(root: string): string[] {
+    const files: string[] = [];
+    const visit = (directory: string): void => {
+        if (directory.toLowerCase() === bpScriptsDirectory) return;
+        for (const entry of readdirSync(directory, { withFileTypes: true })) {
+            const path = join(directory, entry.name);
+            if (entry.isDirectory()) visit(path);
+            else if (entry.isFile() && (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx"))) files.push(path);
+        }
+    };
+    visit(root);
+    return files;
 }
 
-async function runScript(filePath: string) {
-    const content = await Deno.readTextFile(filePath);
-    if (content.startsWith("// @generator-skip")) {
-        return;
-    }
-
-    const process = new Deno.Command("deno", {
-        args: ["run", "--cached-only", "--config", denoConfigPath, "--unstable-sloppy-imports", "--allow-all", filePath],
-        stdout: "inherit",
-        stdin: "inherit",
+async function runScripts(filePaths: string[]): Promise<void> {
+    if (filePaths.length === 0) return;
+    const process = Bun.spawn([
+        "deno",
+        "run",
+        "--cached-only",
+        "--config",
+        denoConfigPath,
+        "--unstable-sloppy-imports",
+        "--allow-all",
+        runnerPath,
+        ...filePaths,
+    ], {
         cwd: join(ROOT_DIR, "packs"),
-    }).spawn();
+        env: { ...globalThis.process.env, DENO_NO_UPDATE_CHECK: "1" },
+        stdin: "inherit",
+        stdout: "inherit",
+        stderr: "inherit",
+    });
 
-    const status = await process.status;
-
-    if (!status.success) {
-        throw new Error(`Failed to run generator script from cache: ${filePath}`);
-    }
+    if (await process.exited !== 0) throw new Error("Failed to run generator scripts from cache.");
 }
 
-await Promise.all(tsFiles.map(runScript));
+const tsFiles = DIRECTORIES.flatMap(collectGeneratorFiles).sort();
+const runnableFiles = (
+    await Promise.all(tsFiles.map(async (filePath) => {
+        const content = await readFile(filePath, "utf8");
+        return content.startsWith("// @generator-skip") ? undefined : filePath;
+    }))
+).filter((filePath): filePath is string => filePath !== undefined);
 
-await Promise.all(tsFiles.map((path) => {
-    Deno.remove(path)
-}));
+await runScripts(runnableFiles);
+await Promise.all(tsFiles.map((path) => rm(path)));
 
-// Merge lang file chunks into single lang files
-const languageChunksDir = join(regolithTmp, "RP", "texts");
+const languageChunksDirectory = join(ROOT_DIR, ".regolith", "tmp", "RP", "texts");
+const languageFiles = readdirSync(languageChunksDirectory, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && (entry.name.endsWith(".lang") || entry.name.endsWith(".chunk")))
+    .map((entry) => join(languageChunksDirectory, entry.name))
+    .sort();
+const allLanguageKeys = new Map<string, Map<string, string>>();
 
-// language : (key : value)
-const allLangKeys: Record<string, Record<string, string>> = {};
-
-for (const entry of walkSync(languageChunksDir, { exts: [".lang", ".chunk"], includeFiles: true })) {
-    if (!entry.isFile) continue;
-    const langCode = entry.name.split(".")[0];
-
-    if (!(langCode in allLangKeys)) {
-        allLangKeys[langCode] = {};
-    }
-
-    const lines = (await Deno.readTextFile(entry.path)).split("\n");
-    for (const line of lines) {
+for (const path of languageFiles) {
+    const languageCode = basename(path).split(".")[0]!;
+    const entries = allLanguageKeys.get(languageCode) ?? new Map<string, string>();
+    for (const line of (await readFile(path, "utf8")).split("\n")) {
         if (line.startsWith("#") || line.trim() === "") continue;
-
-        const [key, ...rest] = line.split("=");
-        allLangKeys[langCode][key] = rest.join("=");
+        const [key, ...value] = line.split("=");
+        entries.set(key!, value.join("="));
     }
-
-    Deno.remove(entry.path);
+    allLanguageKeys.set(languageCode, entries);
 }
 
-for (const [langCode, entries] of Object.entries(allLangKeys)) {
-    const langFilePath = join(languageChunksDir, `${langCode}.lang`);
-    const lines: string[] = [];
-    for (const [key, value] of Object.entries(entries)) {
-        lines.push(`${key}=${value}`);
-    }
-    await Deno.writeTextFile(langFilePath, lines.join("\n"));
-}
+await Promise.all(languageFiles.map((path) => rm(path)));
+await Promise.all([...allLanguageKeys].map(([languageCode, entries]) =>
+    writeFile(
+        join(languageChunksDirectory, `${languageCode}.lang`),
+        [...entries].map(([key, value]) => `${key}=${value}`).join("\n"),
+    )
+));

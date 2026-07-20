@@ -1,23 +1,23 @@
-import { basename, dirname, extname, join } from "jsr:@std/path@^1.0.8";
+import { basename, dirname, extname, fromFileUrl, join, relative } from "jsr:@std/path@^1.0.8";
 import { existsSync } from "jsr:@std/fs@1.0.6/exists";
 import JSON5 from "npm:json5@2.2.3";
+import { getGeneratorEntryPoint } from "./internal/GeneratorContext.ts";
+
+function getImplicitOutputPath(extension: string): string {
+    const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
+    const entryPoint = getGeneratorEntryPoint();
+    const entryPointPath = entryPoint.startsWith("file:") ? fromFileUrl(entryPoint) : entryPoint;
+    const baseName = basename(entryPointPath, extname(entryPointPath));
+    const relativePath = dirname(relative(regolithTmp, entryPointPath));
+    return join(regolithTmp, relativePath, `${baseName}.${extension}`);
+}
 
 /**
  * Function that returns the regolith temp directory.
  */
 export function getTemporaryDirectory(path?: string): string {
-    let outputPath = path;
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
-    if (outputPath === undefined) {
-        const entryPoint = Deno.mainModule.replace("file:///", "");
-        const baseName = basename(entryPoint, extname(entryPoint));
-        const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
-
-        outputPath = join(regolithTmp, relativePath, baseName + ".json");
-    } else {
-        outputPath = join(regolithTmp, outputPath);
-    }
-    return outputPath;
+    return path === undefined ? getImplicitOutputPath("json") : join(regolithTmp, path);
 }
 
 /**
@@ -43,18 +43,8 @@ export function createFile(content: string | object, path: string | undefined = 
 }
 
 export function readJsonFile(path: string | undefined = undefined, useJson5: boolean = false): any {
-    let outputPath = path;
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
-
-    if (outputPath === undefined) {
-        const entryPoint = Deno.mainModule.replace("file:///", "");
-        const baseName = basename(entryPoint, extname(entryPoint));
-        const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
-
-        outputPath = join(regolithTmp, relativePath, baseName + ".json");
-    } else {
-        outputPath = join(regolithTmp, outputPath);
-    }
+    const outputPath = path === undefined ? getImplicitOutputPath("json") : join(regolithTmp, path);
 
     if (!existsSync(outputPath)) {
         throw new Error(`File ${outputPath} does not exist`);
@@ -77,33 +67,14 @@ export function readJsonFile(path: string | undefined = undefined, useJson5: boo
 }
 
 export function pathExists(path: string): boolean {
-    let outputPath = path;
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
-
-    if (outputPath === undefined) {
-        const entryPoint = Deno.mainModule.replace("file:///", "");
-        const baseName = basename(entryPoint, extname(entryPoint));
-        const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
-
-        outputPath = join(regolithTmp, relativePath, baseName + ".json");
-    } else {
-        outputPath = join(regolithTmp, outputPath);
-    }
-
+    const outputPath = join(regolithTmp, path);
     return existsSync(outputPath);
 }
 
 export function readTextFile(path: string | undefined = undefined): string {
-    let outputPath = path;
     const regolithTmp = join(Deno.env.get("ROOT_DIR")!, ".regolith/tmp/");
-    if (outputPath === undefined) {
-        const entryPoint = Deno.mainModule.replace("file:///", "");
-        const baseName = basename(entryPoint, extname(entryPoint));
-        const relativePath = dirname(entryPoint.split("/.regolith/tmp/")[1]);
-        outputPath = join(regolithTmp, relativePath, baseName + ".txt");
-    } else {
-        outputPath = join(regolithTmp, outputPath);
-    }
+    const outputPath = path === undefined ? getImplicitOutputPath("txt") : join(regolithTmp, path);
     if (!existsSync(outputPath)) {
         throw new Error(`File ${outputPath} does not exist`);
     }
