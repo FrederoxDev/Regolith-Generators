@@ -99,6 +99,9 @@ export class BlockGenerator extends GeneratorFactory<BlockDef> {
 }
 
 export type ItemGroupID = `itemGroup.name.${string}`;
+export type BlockFormatVersion = string;
+
+const DEFAULT_BLOCK_FORMAT_VERSION: BlockFormatVersion = "1.26.40";
 
 export class BlockDef extends GeneratorBase<BlockDef> {
     data: Record<string, unknown>;
@@ -110,7 +113,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         this.langFile = langFile;
 
         this.data = {
-            format_version: "1.26.20",
+            format_version: DEFAULT_BLOCK_FORMAT_VERSION,
             "minecraft:block": {
                 description: {
                     identifier: `${projectNamespace}:${id}`,
@@ -121,6 +124,11 @@ export class BlockDef extends GeneratorBase<BlockDef> {
                 components: {},
             },
         };
+    }
+
+    setFormatVersion(formatVersion: BlockFormatVersion): this {
+        this.data.format_version = formatVersion;
+        return this;
     }
 
     private addUniqueValuesAtPath<T extends string>(path: string, values: T[]): void {
