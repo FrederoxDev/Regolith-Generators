@@ -711,20 +711,18 @@ export class ItemComponents extends GeneratorBase<ItemComponents> {
      *
      * @see https://learn.microsoft.com/minecraft/creator/reference/content/itemreference/examples/itemcomponents/minecraft_repairable
      */
-    addRepairable(repairItems: string | ItemRepairEntry | (string | ItemRepairEntry)[], onRepaired: string | undefined = undefined): this {
+    addRepairable(repairItems: string | ItemRepairEntry | (string | ItemRepairEntry)[]): this {
         const entries = this.arrayFrom(repairItems).map((entry) => {
             if (typeof entry === "string") {
-                return entry;
+                return { "items": [entry] };
             }
 
             return this.toRepairEntry(entry);
         });
 
-        const data: Record<string, unknown> = {
+        return this.addComponent("minecraft:repairable", {
             "repair_items": entries
-        };
-        this.setIfDefined(data, "on_repaired", onRepaired);
-        return this.addComponent("minecraft:repairable", data);
+        });
     }
 
     /**

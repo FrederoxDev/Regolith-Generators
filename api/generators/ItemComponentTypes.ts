@@ -384,7 +384,7 @@ export interface ItemRepairEntry {
     /**
      * Items that can repair this item.
      */
-    items: string | string[] | Record<string, string>;
+    items: readonly (string | Record<string, string>)[];
 
     /**
      * How much durability is restored.
