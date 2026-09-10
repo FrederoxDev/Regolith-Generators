@@ -232,7 +232,7 @@ export class LootTableDef extends GeneratorBase<LootTableDef> {
  * @see https://learn.microsoft.com/minecraft/creator/documents/loottableconditions
  */
 export abstract class LootConditioned<TSelf extends LootConditioned<TSelf>> extends GeneratorBase<TSelf> {
-    abstract data: Record<string, unknown>;
+    abstract override data: Record<string, unknown>;
 
     /**
      * Replaces all conditions.
