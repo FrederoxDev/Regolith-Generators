@@ -41,9 +41,9 @@ import {
 
 export * from "./FeatureTypes.ts";
 
-const DEFAULT_FEATURE_FORMAT_VERSION: FeatureFormatVersion = "1.13.0";
-const DEFAULT_MODERN_SCATTER_FORMAT_VERSION: FeatureFormatVersion = "1.21.20";
-const DEFAULT_SINGLE_BLOCK_FORMAT_VERSION: FeatureFormatVersion = "1.21.40";
+const DEFAULT_FEATURE_FORMAT_VERSION: FeatureFormatVersion = "1.26.40";
+const DEFAULT_MODERN_SCATTER_FORMAT_VERSION: FeatureFormatVersion = "1.26.40";
+const DEFAULT_SINGLE_BLOCK_FORMAT_VERSION: FeatureFormatVersion = "1.26.40";
 
 type FeatureOptions<TFeatureData extends FeatureDefinitionData> =
     Partial<Omit<TFeatureData, "description">> & {

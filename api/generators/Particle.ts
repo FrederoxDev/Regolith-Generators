@@ -56,7 +56,7 @@ import {
 
 export * from "./ParticleTypes.ts";
 
-const DEFAULT_PARTICLE_FORMAT_VERSION: ParticleFormatVersion = "1.10.0";
+const DEFAULT_PARTICLE_FORMAT_VERSION: ParticleFormatVersion = "1.26.40";
 const DEFAULT_PARTICLE_MATERIAL: ParticleMaterial = "particles_alpha";
 const DEFAULT_PARTICLE_TEXTURE = "textures/particle/particles";
 const PARTICLE_EFFECT_PATH = "particle_effect";

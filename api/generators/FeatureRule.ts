@@ -13,7 +13,7 @@ import {
 
 export * from "./FeatureTypes.ts";
 
-const DEFAULT_FEATURE_RULE_FORMAT_VERSION: FeatureRuleFormatVersion = "1.13.0";
+const DEFAULT_FEATURE_RULE_FORMAT_VERSION: FeatureRuleFormatVersion = "1.26.40";
 const FEATURE_RULES_PATH = "minecraft:feature_rules";
 
 function qualifyIdentifier(projectNamespace: string, id: string): string {

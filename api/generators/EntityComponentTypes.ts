@@ -543,6 +543,30 @@ export interface EntityPushableOptions {
     is_pushable_by_piston?: boolean;
 }
 
+export type EntityPushMode = "ball" | "default" | "legacy_boat" | "legacy_minecart" | "none";
+
+export interface EntityPushableByEntityPreset {
+    filters?: EntityFilterGroup;
+    push_mode?: EntityPushMode;
+    kick_speed_scale?: number;
+    max_distance?: number;
+    max_kick_speed?: number;
+    min_distance?: number;
+    min_kick_speed?: number;
+    play_sound?: boolean;
+    play_sound_cooldown_in_seconds?: number;
+    play_sound_impulse_threshold?: number;
+    push_scale_other?: number;
+    push_scale_self?: number;
+    require_collision_overlap?: boolean;
+    strength_multiplier?: number;
+    vertical_kick_multiplier?: number;
+}
+
+export interface EntityPushableByEntityOptions {
+    presets?: EntityPushableByEntityPreset[];
+}
+
 export type EntityDamageDealtMode =
     | boolean
     | "yes"

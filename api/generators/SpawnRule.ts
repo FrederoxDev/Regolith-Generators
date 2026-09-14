@@ -27,7 +27,7 @@ import {
 
 export * from "./SpawnRuleTypes.ts";
 
-const DEFAULT_SPAWN_RULE_FORMAT_VERSION: SpawnRuleFormatVersion = "1.8.0";
+const DEFAULT_SPAWN_RULE_FORMAT_VERSION: SpawnRuleFormatVersion = "1.26.40";
 const SPAWN_RULES_PATH = "minecraft:spawn_rules";
 
 function hasToJson(value: unknown): value is { toJson(): Record<string, unknown> } {

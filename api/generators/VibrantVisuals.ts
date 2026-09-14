@@ -37,11 +37,11 @@ import {
 
 export * from "./VibrantVisualsTypes.ts";
 
-const DEFAULT_ATMOSPHERE_FORMAT_VERSION: VibrantVisualsFormatVersion = "1.21.40";
-const DEFAULT_COLOR_GRADING_FORMAT_VERSION: VibrantVisualsFormatVersion = "1.21.90";
-const DEFAULT_CUBEMAP_FORMAT_VERSION: VibrantVisualsFormatVersion = "1.21.130";
-const DEFAULT_LIGHTING_FORMAT_VERSION: VibrantVisualsFormatVersion = "1.26.0";
-const DEFAULT_WATER_FORMAT_VERSION: VibrantVisualsFormatVersion = "1.26.0";
+const DEFAULT_ATMOSPHERE_FORMAT_VERSION: VibrantVisualsFormatVersion = "1.26.40";
+const DEFAULT_COLOR_GRADING_FORMAT_VERSION: VibrantVisualsFormatVersion = "1.26.40";
+const DEFAULT_CUBEMAP_FORMAT_VERSION: VibrantVisualsFormatVersion = "1.26.40";
+const DEFAULT_LIGHTING_FORMAT_VERSION: VibrantVisualsFormatVersion = "1.26.40";
+const DEFAULT_WATER_FORMAT_VERSION: VibrantVisualsFormatVersion = "1.26.40";
 
 const JSON_EXTENSION = ".json";
 

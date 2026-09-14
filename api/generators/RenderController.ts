@@ -18,7 +18,7 @@ import {
 
 export * from "./RenderControllerTypes.ts";
 
-const DEFAULT_RENDER_CONTROLLER_FORMAT_VERSION: RenderControllerFormatVersion = "1.8.0";
+const DEFAULT_RENDER_CONTROLLER_FORMAT_VERSION: RenderControllerFormatVersion = "1.26.40";
 
 function qualifyRenderControllerIdentifier(projectNamespace: string, id: string): RenderControllerIdentifier {
     return id.startsWith("controller.render.")

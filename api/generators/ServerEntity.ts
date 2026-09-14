@@ -10,6 +10,7 @@ import {
     type EntityInventoryOptions,
     type EntityPhysicsOptions,
     type EntityProperty,
+    type EntityPushableByEntityOptions,
     type EntityPushableOptions,
 } from "./EntityComponentTypes.ts";
 
@@ -48,7 +49,7 @@ export class ServerEntityDef extends GeneratorBase<ServerEntityDef> {
         super();
 
         this.data = {
-            "format_version": "1.21.70",
+            "format_version": "1.26.40",
             "minecraft:entity": {
                 "description": {
                     "identifier": `${projectNamespace}:${id}`
@@ -347,19 +348,21 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
     /**
      * Defines whether the entity can be pushed by entities and pistons.
      *
-     * @see https://learn.microsoft.com/minecraft/creator/reference/content/entityreference/examples/entitycomponents/minecraftcomponent_pushable
+     * Emits the split components used by format version 1.26.40.
+     *
+     * @see https://learn.microsoft.com/minecraft/creator/reference/content/entityreference/examples/entitycomponents/minecraftcomponent_pushable_by_entity
      */
     addPushable(isPushable: boolean, isPushableByPiston: boolean): this;
     addPushable(options: EntityPushableOptions): this;
     addPushable(isPushableOrOptions: boolean | EntityPushableOptions, isPushableByPiston?: boolean): this {
-        if (typeof isPushableOrOptions === "object") {
-            return this.addComponent("minecraft:pushable", isPushableOrOptions);
-        }
-
-        return this.addComponent("minecraft:pushable", {
-            "is_pushable": isPushableOrOptions,
-            "is_pushable_by_piston": isPushableByPiston
-        });
+        const options = typeof isPushableOrOptions === "object"
+            ? isPushableOrOptions
+            : { is_pushable: isPushableOrOptions, is_pushable_by_piston: isPushableByPiston };
+        delete this.data["minecraft:pushable"];
+        this.addPushableByEntity((options.is_pushable ?? true) ? {} : { presets: [{ push_mode: "none" }] });
+        if (options.is_pushable_by_piston ?? true) this.addPushableByBlock();
+        else delete this.data["minecraft:pushable_by_block"];
+        return this;
     }
 
     /**
@@ -3587,7 +3590,7 @@ export class EntityComponents extends GeneratorBase<EntityComponents> {
      *
      * @see https://learn.microsoft.com/minecraft/creator/reference/content/entityreference/examples/entitycomponents/minecraftcomponent_pushable_by_entity
      */
-    addPushableByEntity(data: EntityComponentData = {}): this {
+    addPushableByEntity(data: EntityPushableByEntityOptions = {}): this {
         return this.addComponent("minecraft:pushable_by_entity", data);
     }
 

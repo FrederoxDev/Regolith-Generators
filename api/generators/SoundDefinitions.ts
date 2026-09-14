@@ -24,7 +24,7 @@ export class SoundDefinitions extends GeneratorBase<SoundDefinitions> {
         this.projectNamespace = projectNamespace;
 
         this.data = {
-            "format_version": "1.21.70",
+            "format_version": "1.26.40",
             "sound_definitions": {}
         };
     }

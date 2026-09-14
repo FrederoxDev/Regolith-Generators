@@ -30,7 +30,7 @@ import {
 
 export * from "./ClientBiomeTypes.ts";
 
-const DEFAULT_CLIENT_BIOME_FORMAT_VERSION: ClientBiomeFormatVersion = "1.21.110";
+const DEFAULT_CLIENT_BIOME_FORMAT_VERSION: ClientBiomeFormatVersion = "1.26.40";
 const CLIENT_BIOME_PATH = "minecraft:client_biome";
 
 function qualifyIdentifier(projectNamespace: string, id: string): string {

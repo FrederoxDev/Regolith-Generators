@@ -21,7 +21,7 @@ import {
 
 export * from "./FogTypes.ts";
 
-const DEFAULT_FOG_FORMAT_VERSION: FogFormatVersion = "1.21.90";
+const DEFAULT_FOG_FORMAT_VERSION: FogFormatVersion = "1.26.40";
 const FOG_SETTINGS_PATH = "minecraft:fog_settings";
 
 function qualifyIdentifier(projectNamespace: string, id: string): string {

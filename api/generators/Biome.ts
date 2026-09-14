@@ -38,7 +38,7 @@ import {
 
 export * from "./BiomeTypes.ts";
 
-const DEFAULT_BIOME_FORMAT_VERSION: BiomeFormatVersion = "1.21.110";
+const DEFAULT_BIOME_FORMAT_VERSION: BiomeFormatVersion = "1.26.40";
 const BIOME_PATH = "minecraft:biome";
 
 function toArray<T>(value: T | T[]): T[] {

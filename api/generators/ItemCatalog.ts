@@ -114,7 +114,7 @@ export class ItemCatalogDef extends GeneratorBase<ItemCatalogDef> {
         super();
 
         this.data = {
-            "format_version": "1.21.60",
+            "format_version": "1.26.40",
             "minecraft:crafting_items_catalog": {
                 "categories": []
             }

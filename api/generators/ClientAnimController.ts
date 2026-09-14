@@ -76,7 +76,7 @@ export class ClientAnimationControllerGenerator extends GeneratorFactory<ClientA
             "format_version": string;
             "animation_controllers": Record<string, unknown>;
         } = {
-            "format_version": "1.10.0",
+            "format_version": "1.26.40",
             "animation_controllers": {}
         };
 

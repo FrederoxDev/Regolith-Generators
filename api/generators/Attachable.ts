@@ -21,7 +21,7 @@ import {
 
 export * from "./AttachableTypes.ts";
 
-const DEFAULT_ATTACHABLE_FORMAT_VERSION: AttachableFormatVersion = "1.10.0";
+const DEFAULT_ATTACHABLE_FORMAT_VERSION: AttachableFormatVersion = "1.26.40";
 const DESCRIPTION_PATH = "minecraft:attachable/description";
 const SCRIPTS_PATH = `${DESCRIPTION_PATH}/scripts`;
 

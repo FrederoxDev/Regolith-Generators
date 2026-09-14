@@ -18,7 +18,7 @@ import {
 
 export * from "./AnimationControllerTypes.ts";
 
-const DEFAULT_ANIMATION_CONTROLLER_FORMAT_VERSION: AnimationControllerFormatVersion = "1.17.30";
+const DEFAULT_ANIMATION_CONTROLLER_FORMAT_VERSION: AnimationControllerFormatVersion = "1.26.40";
 
 function qualifyControllerIdentifier(projectNamespace: string, id: string): AnimationControllerIdentifier {
     return id.startsWith("controller.animation.")

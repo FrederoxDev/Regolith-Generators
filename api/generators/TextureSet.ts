@@ -13,7 +13,7 @@ import {
 
 export * from "./TextureSetTypes.ts";
 
-const DEFAULT_TEXTURE_SET_FORMAT_VERSION: TextureSetFormatVersion = "1.21.30";
+const DEFAULT_TEXTURE_SET_FORMAT_VERSION: TextureSetFormatVersion = "1.26.40";
 const TEXTURE_SET_PATH = "minecraft:texture_set";
 
 function normalizeTextureSetPath(path: string): TextureSetPath {

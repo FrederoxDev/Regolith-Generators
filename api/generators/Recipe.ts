@@ -14,7 +14,7 @@ import {
 
 export * from "./RecipeTypes.ts";
 
-const DEFAULT_RECIPE_FORMAT_VERSION = "1.20.10";
+const DEFAULT_RECIPE_FORMAT_VERSION = "1.26.40";
 const LEGACY_ALWAYS_UNLOCKED: RecipeUnlock = { context: "AlwaysUnlocked" };
 
 function toArray<T>(value: T | T[]): T[] {
@@ -406,7 +406,7 @@ export class RecipeGenerator extends GeneratorFactory<RecipeDefinition<any>> {
         addition: string,
         result: string,
         tags: RecipeTag[] = ["smithing_table"],
-        formatVersion: RecipeFormatVersion = "1.20.0"
+        formatVersion: RecipeFormatVersion = "1.26.40"
     ): SmithingTransformRecipe {
         const def = new SmithingTransformRecipe(
             this.projectNamespace,
@@ -445,7 +445,7 @@ export class RecipeGenerator extends GeneratorFactory<RecipeDefinition<any>> {
         base: SmithingTrimIngredient,
         addition: SmithingTrimIngredient,
         tags: RecipeTag[] = ["smithing_table"],
-        formatVersion: RecipeFormatVersion = "1.20.0"
+        formatVersion: RecipeFormatVersion = "1.26.40"
     ): SmithingTrimRecipe {
         const def = new SmithingTrimRecipe(this.projectNamespace, id, template, base, addition, tags, formatVersion);
         return this.storeRecipe(id, def);
@@ -728,7 +728,7 @@ export class SmithingTransformRecipe extends RecipeDefinition<SmithingTransformR
         addition: string,
         result: string,
         tags: RecipeTag[] = ["smithing_table"],
-        formatVersion: RecipeFormatVersion = "1.20.0"
+        formatVersion: RecipeFormatVersion = "1.26.40"
     ) {
         super("minecraft:recipe_smithing_transform", projectNamespace, id, tags, formatVersion);
         this.setTemplate(template);
@@ -787,7 +787,7 @@ export class SmithingTrimRecipe extends RecipeDefinition<SmithingTrimRecipe> {
         base: SmithingTrimIngredient,
         addition: SmithingTrimIngredient,
         tags: RecipeTag[] = ["smithing_table"],
-        formatVersion: RecipeFormatVersion = "1.20.0"
+        formatVersion: RecipeFormatVersion = "1.26.40"
     ) {
         super("minecraft:recipe_smithing_trim", projectNamespace, id, tags, formatVersion);
         this.setTemplate(template);

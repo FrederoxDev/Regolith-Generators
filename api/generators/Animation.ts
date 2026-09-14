@@ -20,7 +20,7 @@ import {
 
 export * from "./AnimationTypes.ts";
 
-const DEFAULT_ANIMATION_FORMAT_VERSION: AnimationFormatVersion = "1.8.0";
+const DEFAULT_ANIMATION_FORMAT_VERSION: AnimationFormatVersion = "1.26.40";
 
 function qualifyAnimationIdentifier(projectNamespace: string, id: string): AnimationIdentifier {
     return id.startsWith("animation.") ? id : `animation.${projectNamespace}.${id}`;

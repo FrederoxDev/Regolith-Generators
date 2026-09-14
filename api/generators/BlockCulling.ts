@@ -14,7 +14,7 @@ import {
 
 export * from "./BlockCullingTypes.ts";
 
-const DEFAULT_BLOCK_CULLING_FORMAT_VERSION: BlockCullingFormatVersion = "1.21.80";
+const DEFAULT_BLOCK_CULLING_FORMAT_VERSION: BlockCullingFormatVersion = "1.26.40";
 const BLOCK_CULLING_RULES_PATH = "minecraft:block_culling_rules";
 const ALL_BLOCK_CULLING_DIRECTIONS: BlockCullingDirection[] = [
     "down",
