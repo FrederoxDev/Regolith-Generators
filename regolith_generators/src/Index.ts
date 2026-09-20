@@ -6,6 +6,35 @@ import { fileURLToPath } from "node:url";
 const ROOT_DIR = process.env.ROOT_DIR;
 if (!ROOT_DIR) throw new Error("Regolith did not provide ROOT_DIR.");
 
+function readScriptEnvironment(raw: string | undefined): Record<string, string> {
+	if (raw === undefined) return {};
+	const settings: unknown = JSON.parse(raw);
+	if (!settings || typeof settings !== "object" || Array.isArray(settings)) {
+		throw new Error("Regolith Generators settings must be a JSON object.");
+	}
+	const values = (settings as { env?: unknown }).env;
+	if (values === undefined) return {};
+	if (!values || typeof values !== "object" || Array.isArray(values)) {
+		throw new Error("Regolith Generators settings.env must be an object of string values.");
+	}
+	const environment: Record<string, string> = {};
+	for (const [name, value] of Object.entries(values)) {
+		if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+			throw new Error(`Invalid generator environment variable name "${name}".`);
+		}
+		if (name.toUpperCase() === "ROOT_DIR") {
+			throw new Error("settings.env cannot override Regolith's ROOT_DIR.");
+		}
+		if (typeof value !== "string" || value.includes("\0")) {
+			throw new Error(`Generator environment variable "${name}" must be a string without null characters.`);
+		}
+		environment[name] = value;
+	}
+	return environment;
+}
+
+const scriptEnvironment = readScriptEnvironment(process.argv[2]);
+
 const DIRECTORIES = [join(process.cwd(), "BP"), join(process.cwd(), "RP"), join(process.cwd(), "data", "generated")];
 
 const denoConfigPath = join(ROOT_DIR, "packs", "data", "generated", "deno.json");
@@ -41,8 +70,12 @@ async function runScripts(filePaths: string[]): Promise<void> {
 			...filePaths,
 		],
 		{
-			cwd: join(ROOT_DIR, "packs"),
-			env: { ...globalThis.process.env, DENO_NO_UPDATE_CHECK: "1" },
+			cwd: join(ROOT_DIR!, "packs"),
+			env: {
+				...globalThis.process.env,
+				DENO_NO_UPDATE_CHECK: "1",
+				...scriptEnvironment,
+			},
 			stdin: "inherit",
 			stdout: "inherit",
 			stderr: "inherit",

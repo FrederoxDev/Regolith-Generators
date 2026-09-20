@@ -49,3 +49,6 @@ export * from "./generators/BlockCullingTypes.ts"
 export * from "./Utils.ts"
 export * from "./generators/Lang.ts"
 export * from "./generators/ClientAnimController.ts"
+
+export * from "./GeneratorOptions.ts";
+export * from "./generators/ContentGuide.ts";

@@ -1,3 +1,5 @@
+import type { GeneratorOptions } from "../GeneratorOptions.ts";
+import type { ContentGuideAssetDetails } from "./ContentGuide.ts";
 import { GeneratorBase, GeneratorFactory } from "../GeneratorBase.ts";
 import {
     type EntityBreathableOptions,
@@ -21,7 +23,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export class ServerEntityGenerator extends GeneratorFactory<ServerEntityDef> {
-    constructor(projectNamespace: string) {
+    public override generate(): void {
+        super.generate();
+        for (const definition of this.filesToGenerate.values()) definition.collectContentGuide();
+    }
+
+    constructor(projectNamespace: string, private readonly options: GeneratorOptions = {}) {
         super(projectNamespace, "BP/entities");
     }
 
@@ -31,7 +38,7 @@ export class ServerEntityGenerator extends GeneratorFactory<ServerEntityDef> {
      * The final identifier is built as `projectNamespace:id`.
      */
     makeEntity(id: string): ServerEntityDef {
-        const def = new ServerEntityDef(this.projectNamespace, id);
+        const def = new ServerEntityDef(this.projectNamespace, id, this.options);
         this.filesToGenerate.set(id, def);
         return def;
     }
@@ -43,9 +50,23 @@ export class ServerEntityGenerator extends GeneratorFactory<ServerEntityDef> {
  * Generated files are written under `BP/entities`.
  */
 export class ServerEntityDef extends GeneratorBase<ServerEntityDef> {
+    private guideDetails?: ContentGuideAssetDetails;
+
+    public addContentGuide(details: ContentGuideAssetDetails): this {
+        if (!this.options.guideGenerator) throw new Error("ServerEntityGenerator requires guideGenerator to add content guide entries.");
+        this.guideDetails = { ...details };
+        return this;
+    }
+
+    public collectContentGuide(): void {
+        if (!this.guideDetails) return;
+        const identifier = this.getValueAtPath<string>("minecraft:entity/description/identifier", "");
+        this.options.guideGenerator!.addEntity(identifier, this.guideDetails);
+    }
+
     data: Record<string, unknown>;
 
-    constructor(projectNamespace: string, id: string) {
+    constructor(projectNamespace: string, id: string, private readonly options: GeneratorOptions = {}) {
         super();
 
         this.data = {

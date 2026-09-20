@@ -1,3 +1,5 @@
+import type { GeneratorOptions } from "../GeneratorOptions.ts";
+import type { ContentGuideAssetDetails } from "./ContentGuide.ts";
 import { GeneratorBase, GeneratorFactory } from "../GeneratorBase.ts";
 import {
     type BlockBoneVisibility,
@@ -34,7 +36,7 @@ import {
 } from "./BlockComponentTypes.ts";
 import { ItemCategory } from "./Item.ts";
 import { VanillaItemGroup } from "./ItemCatalog.ts";
-import { LangGenerator, ToTitleCase } from "./Lang.ts";
+import { ToTitleCase } from "./Lang.ts";
 
 export { BlockRenderMethod } from "./BlockComponentTypes.ts";
 export type {
@@ -84,15 +86,17 @@ export type {
 } from "./BlockComponentTypes.ts";
 
 export class BlockGenerator extends GeneratorFactory<BlockDef> {
-    langFile: LangGenerator | undefined;
+    public override generate(): void {
+        super.generate();
+        for (const definition of this.filesToGenerate.values()) definition.collectContentGuide();
+    }
 
-    constructor(projectNamespace: string, langFile: LangGenerator | undefined = undefined) {
+    constructor(projectNamespace: string, private readonly options: GeneratorOptions = {}) {
         super(projectNamespace, "BP/blocks");
-        this.langFile = langFile;
     }
 
     makeBlock(id: string): BlockDef {
-        const def = new BlockDef(this.projectNamespace, id, this.langFile);
+        const def = new BlockDef(this.projectNamespace, id, this.options);
         this.filesToGenerate.set(id, def);
         return def;
     }
@@ -104,13 +108,25 @@ export type BlockFormatVersion = string;
 const DEFAULT_BLOCK_FORMAT_VERSION: BlockFormatVersion = "1.26.40";
 
 export class BlockDef extends GeneratorBase<BlockDef> {
+    private guideDetails?: ContentGuideAssetDetails;
+
+    public addContentGuide(details: ContentGuideAssetDetails): this {
+        if (!this.options.guideGenerator) throw new Error("BlockGenerator requires guideGenerator to add content guide entries.");
+        this.guideDetails = { ...details };
+        return this;
+    }
+
+    public collectContentGuide(): void {
+        if (!this.guideDetails) return;
+        const identifier = this.getValueAtPath<string>("minecraft:block/description/identifier", "");
+        const localizedName = this.options.langGenerator?.data[`tile.${identifier}.name`];
+        this.options.guideGenerator!.addBlock(identifier, { ...this.guideDetails, name: this.guideDetails.name ?? localizedName });
+    }
+
     data: Record<string, unknown>;
-    langFile: LangGenerator | undefined;
 
-    constructor(projectNamespace: string, id: string, langFile: LangGenerator | undefined = undefined) {
+    constructor(projectNamespace: string, id: string, private readonly options: GeneratorOptions = {}) {
         super();
-
-        this.langFile = langFile;
 
         this.data = {
             format_version: DEFAULT_BLOCK_FORMAT_VERSION,
@@ -450,7 +466,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
     }
 
     addDefaultLocalization(): this {
-        if (this.langFile === undefined) {
+        if (this.options.langGenerator === undefined) {
             throw new Error("No LangGenerator provided to BlockGenerator, cannot add localization.");
         }
 
@@ -462,12 +478,12 @@ export class BlockDef extends GeneratorBase<BlockDef> {
         const name = id.split(":")[1];
         const titleCaseName = ToTitleCase(name);
 
-        this.langFile.addLine(`tile.${id}.name`, titleCaseName);
+        this.options.langGenerator.addLine(`tile.${id}.name`, titleCaseName);
         return this;
     }
 
     addLocalization(value: string): this {
-        if (this.langFile === undefined) {
+        if (this.options.langGenerator === undefined) {
             throw new Error("No LangGenerator provided to BlockGenerator, cannot add localization.");
         }
         const id = this.getValueAtPath<string>("minecraft:block/description/identifier", "");
@@ -475,7 +491,7 @@ export class BlockDef extends GeneratorBase<BlockDef> {
             throw new Error("BlockDef has no identifier, cannot add localization.");
         }
 
-        this.langFile.addLine(`tile.${id}.name`, value);
+        this.options.langGenerator.addLine(`tile.${id}.name`, value);
         return this;
     }
 }

@@ -1,3 +1,5 @@
+import type { GeneratorOptions } from "../GeneratorOptions.ts";
+import type { ContentGuideAssetDetails } from "./ContentGuide.ts";
 import { GeneratorBase, GeneratorFactory } from "../GeneratorBase.ts";
 import {
     ItemSlot,
@@ -25,7 +27,7 @@ import {
     type ItemUseModifiersOptions,
     type ItemWearableOptions,
 } from "./ItemComponentTypes.ts";
-import { LangGenerator, ToTitleCase } from "./Lang.ts";
+import { ToTitleCase } from "./Lang.ts";
 
 export * from "./ItemComponentTypes.ts";
 
@@ -37,14 +39,16 @@ export * from "./ItemComponentTypes.ts";
  * `addDefaultLocalization()` or `addLocalization(...)`.
  */
 export class ItemGenerator extends GeneratorFactory<ItemDef> {
-    langFile: LangGenerator | undefined;
+    public override generate(): void {
+        super.generate();
+        for (const definition of this.filesToGenerate.values()) definition.collectContentGuide();
+    }
 
     /**
      * Creates an item generator for a project namespace.
      */
-    constructor(projectNamespace: string, langFile: LangGenerator | undefined = undefined) {
+    constructor(projectNamespace: string, private readonly options: GeneratorOptions = {}) {
         super(projectNamespace, "BP/items");
-        this.langFile = langFile;
     }
 
     /**
@@ -53,7 +57,7 @@ export class ItemGenerator extends GeneratorFactory<ItemDef> {
      * The final identifier is built as `projectNamespace:id`.
      */
     makeItem(id: string): ItemDef {
-        const def = new ItemDef(this.projectNamespace, id, this.langFile);
+        const def = new ItemDef(this.projectNamespace, id, this.options);
         this.filesToGenerate.set(id, def);
         return def;
     }
@@ -99,16 +103,28 @@ export enum ItemCategory {
  * @see https://learn.microsoft.com/minecraft/creator/reference/content/itemreference/examples/itemcomponents/minecraft_item
  */
 export class ItemDef extends GeneratorBase<ItemDef> {
+    private guideDetails?: ContentGuideAssetDetails;
+
+    public addContentGuide(details: ContentGuideAssetDetails): this {
+        if (!this.options.guideGenerator) throw new Error("ItemGenerator requires guideGenerator to add content guide entries.");
+        this.guideDetails = { ...details };
+        return this;
+    }
+
+    public collectContentGuide(): void {
+        if (!this.guideDetails) return;
+        const identifier = this.getValueAtPath<string>("minecraft:item/description/identifier", "");
+        const localizedName = this.options.langGenerator?.data[`item.${identifier}`];
+        this.options.guideGenerator!.addItem(identifier, { ...this.guideDetails, name: this.guideDetails.name ?? localizedName });
+    }
+
     data: Record<string, unknown>;
-    langFile: LangGenerator | undefined;
 
     /**
      * Creates an item definition with identifier `projectNamespace:id`.
      */
-    constructor(projectNamespace: string, id: string, langFile: LangGenerator | undefined) {
+    constructor(projectNamespace: string, id: string, private readonly options: GeneratorOptions = {}) {
         super();
-
-        this.langFile = langFile;
 
         this.data = {
             "format_version": "1.26.40",
@@ -171,7 +187,7 @@ export class ItemDef extends GeneratorBase<ItemDef> {
      * constructed with a `LangGenerator`.
      */
     addDefaultLocalization(): this {
-        if (this.langFile === undefined) {
+        if (this.options.langGenerator === undefined) {
             throw new Error("No LangGenerator provided to ItemGenerator, cannot add localization.");
         }
 
@@ -183,7 +199,7 @@ export class ItemDef extends GeneratorBase<ItemDef> {
         const name = id.split(":")[1];
         const titleCaseName = ToTitleCase(name);
 
-        this.langFile.addLine(`item.${id}`, titleCaseName);
+        this.options.langGenerator.addLine(`item.${id}`, titleCaseName);
         return this;
     }
 
@@ -194,7 +210,7 @@ export class ItemDef extends GeneratorBase<ItemDef> {
      * generator to have been constructed with a `LangGenerator`.
      */
     addLocalization(value: string): this {
-        if (this.langFile === undefined) {
+        if (this.options.langGenerator === undefined) {
             throw new Error("No LangGenerator provided to ItemGenerator, cannot add localization.");
         }
         const id = this.getValueAtPath<string>("minecraft:item/description/identifier", "");
@@ -202,7 +218,7 @@ export class ItemDef extends GeneratorBase<ItemDef> {
             throw new Error("ItemDef has no identifier, cannot add localization.");
         }
 
-        this.langFile.addLine(`item.${id}`, value);
+        this.options.langGenerator.addLine(`item.${id}`, value);
         return this;
     }
 }

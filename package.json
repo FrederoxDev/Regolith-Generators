@@ -1,0 +1,13 @@
+{
+  "name": "regolith-generators",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "entities": "8.1.0",
+    "marked": "18.0.13",
+    "pdfmake": "0.3.11"
+  },
+  "devDependencies": {
+    "@types/pdfmake": "0.3.3"
+  }
+}
