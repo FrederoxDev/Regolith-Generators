@@ -4,7 +4,7 @@ Regolith-Generators is a toolkit meant to improve the developer experience of ma
 
 ## Methodology
 
-### 1. Reducing code repition
+### 1. Reducing code repetition 
 
 When writing JS/TS for scripts in a minecraft addon, it is largely considered a bad practice to copy and paste the exact same peice of code again and again, but for some reason this does not extend to writing `.json` definition files.
 
